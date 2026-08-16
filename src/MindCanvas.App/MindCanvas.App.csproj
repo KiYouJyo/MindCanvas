@@ -11,6 +11,10 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsPackageType>MSIX</WindowsPackageType>
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
+    <DefaultLanguage>zh-CN</DefaultLanguage>
+    <!-- Keep language resources inside the main application package instead of creating
+         detached language resource packages. This mirrors the proven UrbanPlanToolbox setup. -->
+    <AppxBundleAutoResourcePackageQualifiers>Scale|DXFeatureLevel</AppxBundleAutoResourcePackageQualifiers>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.3.1" />
