@@ -27,8 +27,10 @@ jobs:
         include:
           - arch: x64
             platform: x64
+            rid: win-x64
           - arch: arm64
             platform: ARM64
+            rid: win-arm64
     steps:
       - name: Resolve version
         id: version
@@ -51,16 +53,18 @@ jobs:
           PFX_PASSWORD: ${{ secrets.GH_RELEASE_CERTIFICATE_PASSWORD }}
         run: |
           if([string]::IsNullOrWhiteSpace($env:PFX_BASE64)-or[string]::IsNullOrWhiteSpace($env:PFX_PASSWORD)){throw 'GitHub release signing secrets are not configured.'}
-      - name: Restore and test
+      - name: Test core libraries
         shell: pwsh
         run: |
-          dotnet restore MindCanvas.slnx -p:Platform=${{ matrix.platform }}
-          dotnet test MindCanvas.slnx -c Release -p:Platform=${{ matrix.platform }} --no-restore
+          dotnet test tests/MindCanvas.Core.Tests/MindCanvas.Core.Tests.csproj -c Release
+          dotnet test tests/MindCanvas.Layout.Tests/MindCanvas.Layout.Tests.csproj -c Release
+          dotnet test tests/MindCanvas.Storage.Tests/MindCanvas.Storage.Tests.csproj -c Release
       - name: Build unsigned MSIX bundle
         shell: pwsh
         run: |
           $out=Join-Path $env:RUNNER_TEMP 'AppPackages'
-          dotnet build src/MindCanvas.App/MindCanvas.App.csproj -c Release -p:Platform=${{ matrix.platform }} -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false -p:AppxBundle=Always -p:AppxBundlePlatforms=${{ matrix.platform }} -p:UapAppxPackageBuildMode=SideloadOnly -p:AppxPackageDir="$out\"
+          dotnet restore src/MindCanvas.App/MindCanvas.App.csproj -p:Platform=${{ matrix.platform }} -r ${{ matrix.rid }}
+          dotnet build src/MindCanvas.App/MindCanvas.App.csproj -c Release -p:Platform=${{ matrix.platform }} -r ${{ matrix.rid }} -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false -p:AppxBundle=Always -p:AppxBundlePlatforms=${{ matrix.platform }} -p:UapAppxPackageBuildMode=SideloadOnly -p:AppxPackageDir="$out\" --no-restore
           $bundle=Get-ChildItem $out -Recurse -Filter '*.msixbundle' | Select-Object -First 1
           if(-not $bundle){throw 'MSIX bundle was not produced.'}
           $renamed=Join-Path $env:RUNNER_TEMP "MindCanvas_${{ steps.version.outputs.package_version }}_${{ matrix.arch }}.msixbundle"
@@ -101,7 +105,6 @@ jobs:
   release:
     needs: build
     runs-on: windows-2025-vs2026
-    if: ${{ github.event_name == 'push' || inputs.dry_run != true }}
     steps:
       - name: Resolve version
         id: version
