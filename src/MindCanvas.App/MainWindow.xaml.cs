@@ -41,6 +41,8 @@ public sealed partial class MainWindow : Window
             ? session
             : null;
 
+    private EditorPage? CurrentEditor => RootFrame.Content as EditorPage;
+
     private string LocalText(string en, string zh, string ja)
     {
         var language = Windows.Globalization.ApplicationLanguages.Languages.FirstOrDefault() ?? "en-US";
@@ -143,13 +145,29 @@ public sealed partial class MainWindow : Window
         }
     }
 
+    private void SyncEditorCommandState()
+    {
+        var session = CurrentSession;
+        var editor = CurrentEditor;
+        var selectedId = editor?.SelectedNodeId;
+        var selectedNode = session is not null && selectedId is Guid id && session.Document.Nodes.TryGetValue(id, out var node)
+            ? node
+            : null;
+
+        EditorDeleteButton.IsEnabled = session is not null && selectedId is Guid selected && selected != session.Document.RootNodeId;
+        EditorCollapseButton.IsEnabled = selectedNode is { ChildrenIds.Count: > 0, IsCollapsed: false };
+        EditorExpandButton.IsEnabled = selectedNode is { ChildrenIds.Count: > 0, IsCollapsed: true };
+        EditorUndoButton.IsEnabled = session?.History.CanUndo == true;
+        EditorRedoButton.IsEnabled = session?.History.CanRedo == true;
+    }
+
     private void ViewMode_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not ToggleButton { Tag: string mode } button) return;
+        if (sender is not ToggleButton { Tag: string mode }) return;
         _editorMode = mode;
         SyncEditorViewButtons();
 
-        if (RootFrame.Content is EditorPage editor)
+        if (CurrentEditor is { } editor)
             editor.SetView(mode);
         else
             Navigate("editor");
@@ -162,45 +180,56 @@ public sealed partial class MainWindow : Window
             button.IsChecked = button.Tag is string buttonTag && buttonTag == tag;
     }
 
+    private EditorPage? GetOrOpenEditor()
+    {
+        if (CurrentEditor is { } editor)
+            return editor;
+
+        Navigate("editor");
+        return CurrentEditor;
+    }
+
     private void EditorNewTopic_Click(object sender, RoutedEventArgs e)
-        => AddEditorNode(LocalText("New topic", "新主题", "新規トピック"), addAsChild: false);
+        => GetOrOpenEditor()?.AddRootTopic(LocalText("New topic", "新主题", "新規トピック"));
 
     private void EditorSubtopic_Click(object sender, RoutedEventArgs e)
-        => AddEditorNode(LocalText("Subtopic", "子主题", "サブトピック"), addAsChild: true);
+        => GetOrOpenEditor()?.AddSubtopic(LocalText("Subtopic", "子主题", "サブトピック"));
 
     private void EditorSibling_Click(object sender, RoutedEventArgs e)
-        => AddEditorNode(LocalText("Sibling", "同级主题", "同階層トピック"), addAsChild: false);
+        => GetOrOpenEditor()?.AddSibling(LocalText("Sibling", "同级主题", "同階層トピック"));
 
     private void EditorDelete_Click(object sender, RoutedEventArgs e)
-    {
-        // Keep the V4 toolbar control present without expanding the document model in this UI-only change.
-        if (RootFrame.Content is EditorPage editor) editor.Refresh();
-    }
+        => GetOrOpenEditor()?.DeleteSelected();
 
     private void EditorCollapse_Click(object sender, RoutedEventArgs e)
-    {
-        if (RootFrame.Content is EditorPage editor) editor.ToggleCollapse(true);
-    }
+        => GetOrOpenEditor()?.SetSelectedCollapsed(true);
 
     private void EditorExpand_Click(object sender, RoutedEventArgs e)
-    {
-        if (RootFrame.Content is EditorPage editor) editor.ToggleCollapse(false);
-    }
+        => GetOrOpenEditor()?.SetSelectedCollapsed(false);
 
     private void EditorFormatToggle_Click(object sender, RoutedEventArgs e)
     {
-        if (RootFrame.Content is EditorPage editor) editor.ToggleFormatPanel();
+        if (CurrentEditor is { } editor)
+            editor.ToggleFormatPanel();
     }
 
-    private void AddEditorNode(string title, bool addAsChild)
+    private void EditorPage_SelectionChanged(object? sender, EventArgs e)
+    {
+        if (sender is EditorPage editor && CurrentSession is { } session)
+            session.SelectedNodeId = editor.SelectedNodeId;
+        SyncEditorCommandState();
+    }
+
+    private void EditorPage_DocumentChanged(object? sender, EventArgs e)
     {
         var session = CurrentSession;
-        if (session is null) return;
-        session.History.Execute(new AddNodeCommand(
-            session.Document,
-            session.Document.RootNodeId,
-            title));
-        Navigate("editor");
+        if (session is null)
+            return;
+
+        if (DocumentTabs.SelectedItem is TabViewItem tab)
+            tab.Header = session.Document.Title;
+        ContextTitle.Text = session.Document.Title;
+        SyncEditorCommandState();
     }
 
     private void Navigate(string tag)
@@ -237,10 +266,23 @@ public sealed partial class MainWindow : Window
                 break;
 
             case "editor":
-                ContextTitle.Text = CurrentSession?.Document.Title ?? "MindCanvas";
+            {
+                var session = CurrentSession;
+                ContextTitle.Text = session?.Document.Title ?? "MindCanvas";
                 ContextSubtitle.Text = LocalText("Mind map editor", "思维导图编辑器", "マインドマップエディター");
-                RootFrame.Navigate(typeof(EditorPage), new EditorNavigation(CurrentSession?.Document, _editorMode));
+                RootFrame.Navigate(
+                    typeof(EditorPage),
+                    new EditorNavigation(session?.Document, session?.History, _editorMode, session?.SelectedNodeId));
+                if (RootFrame.Content is EditorPage editor)
+                {
+                    editor.SelectionChanged += EditorPage_SelectionChanged;
+                    editor.DocumentChanged += EditorPage_DocumentChanged;
+                    if (session is not null)
+                        session.SelectedNodeId = editor.SelectedNodeId;
+                }
+                SyncEditorCommandState();
                 break;
+            }
 
             default:
                 SetActionMode("home");
@@ -336,26 +378,18 @@ public sealed partial class MainWindow : Window
     }
 
     private void AddChild_Click(object sender, RoutedEventArgs e)
-    {
-        var session = CurrentSession;
-        if (session is null) return;
-        session.History.Execute(new AddNodeCommand(
-            session.Document,
-            session.Document.RootNodeId,
-            LocalText("New topic", "新主题", "新しいトピック")));
-        Navigate("editor");
-    }
+        => GetOrOpenEditor()?.AddSubtopic(LocalText("New topic", "新主题", "新しいトピック"));
 
     private void Undo_Click(object sender, RoutedEventArgs e)
     {
-        if (CurrentSession?.History.Undo() == true)
-            Navigate("editor");
+        if (GetOrOpenEditor()?.Undo() == true)
+            SyncEditorCommandState();
     }
 
     private void Redo_Click(object sender, RoutedEventArgs e)
     {
-        if (CurrentSession?.History.Redo() == true)
-            Navigate("editor");
+        if (GetOrOpenEditor()?.Redo() == true)
+            SyncEditorCommandState();
     }
 
     private async void AutosaveTimer_Tick(object? sender, object e)
@@ -378,8 +412,12 @@ public sealed partial class MainWindow : Window
         public MindMapDocument Document { get; } = document;
         public string? FilePath { get; set; } = filePath;
         public UndoRedoManager History { get; } = history;
+        public Guid? SelectedNodeId { get; set; } = document.RootNodeId;
     }
-
 }
 
-internal sealed record EditorNavigation(MindMapDocument? Document, string Mode);
+internal sealed record EditorNavigation(
+    MindMapDocument? Document,
+    UndoRedoManager? History,
+    string Mode,
+    Guid? SelectedNodeId);
