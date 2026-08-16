@@ -53,6 +53,16 @@ public sealed class MindMapDocument
         Touch();
     }
 
+    public void SetNodeCollapsed(Guid nodeId, bool isCollapsed)
+    {
+        var node = GetNode(nodeId);
+        if (node.IsCollapsed == isCollapsed)
+            return;
+
+        node.IsCollapsed = isCollapsed;
+        Touch();
+    }
+
     public void MoveNode(Guid nodeId, Guid newParentId, int? index = null)
     {
         if (nodeId == RootNodeId)
@@ -115,6 +125,22 @@ public sealed class MindMapDocument
             var id = stack.Pop();
             var node = GetNode(id);
             yield return node;
+            for (var i = node.ChildrenIds.Count - 1; i >= 0; i--)
+                stack.Push(node.ChildrenIds[i]);
+        }
+    }
+
+    public IEnumerable<MindNode> EnumerateVisibleDepthFirst()
+    {
+        var stack = new Stack<Guid>();
+        stack.Push(RootNodeId);
+        while (stack.Count > 0)
+        {
+            var id = stack.Pop();
+            var node = GetNode(id);
+            yield return node;
+            if (node.IsCollapsed)
+                continue;
             for (var i = node.ChildrenIds.Count - 1; i >= 0; i--)
                 stack.Push(node.ChildrenIds[i]);
         }
