@@ -1,6 +1,6 @@
 # MindCanvas
 
-[English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja-JP.md)
+[简体中文](README.md) · [English](README.en-US.md) · [日本語](README.ja-JP.md)
 
 > **プレビュー** — v0.1.0 は最初の公開エンジニアリングプレビューです。v0.1.5 では V4 UI の高精度実装に重点を置きます。
 
