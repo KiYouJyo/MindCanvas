@@ -1,5 +1,6 @@
 using MindCanvas.Core.Commands;
 using MindCanvas.Core.Documents;
+using Xunit;
 
 namespace MindCanvas.Core.Tests;
 

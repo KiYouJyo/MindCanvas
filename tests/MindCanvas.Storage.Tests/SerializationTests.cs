@@ -1,4 +1,5 @@
 using MindCanvas.Core.Documents;
+using Xunit;
 
 namespace MindCanvas.Storage.Tests;
 

@@ -1,0 +1,1 @@
+Publishing certificates are never committed to this repository. GitHub Actions reads the PFX from GH_RELEASE_CERTIFICATE_BASE64 and GH_RELEASE_CERTIFICATE_PASSWORD repository secrets, then exports MindCanvas.cer into release artifacts.
