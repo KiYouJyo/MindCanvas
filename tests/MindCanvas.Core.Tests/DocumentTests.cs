@@ -112,4 +112,82 @@ public sealed class DocumentTests
         Assert.Equal(new[] { a.Id, b.Id, c.Id }, document.Root.ChildrenIds);
         document.Validate();
     }
+
+    [Fact]
+    public void SubtreeTemplate_CapturesShapeAndMetadataWithoutDocumentIds()
+    {
+        var document = MindMapDocument.Create("Root");
+        var branch = document.AddChild(document.RootNodeId, "Branch");
+        branch.Notes = "note";
+        branch.Hyperlink = "https://example.test";
+        branch.IsCollapsed = true;
+        var leaf = document.AddChild(branch.Id, "Leaf");
+        leaf.Notes = "leaf note";
+
+        var template = NodeSubtreeTemplate.Capture(document, branch.Id);
+
+        Assert.Equal("Branch", template.Title);
+        Assert.Equal("note", template.Notes);
+        Assert.Equal("https://example.test", template.Hyperlink);
+        Assert.True(template.IsCollapsed);
+        var child = Assert.Single(template.Children);
+        Assert.Equal("Leaf", child.Title);
+        Assert.Equal("leaf note", child.Notes);
+    }
+
+    [Fact]
+    public void InsertSubtree_UsesFreshIdsAndPreservesRequestedSiblingPosition()
+    {
+        var source = MindMapDocument.Create("Source");
+        var sourceBranch = source.AddChild(source.RootNodeId, "Copied");
+        source.AddChild(sourceBranch.Id, "Nested");
+        var template = NodeSubtreeTemplate.Capture(source, sourceBranch.Id);
+
+        var target = MindMapDocument.Create("Target");
+        var first = target.AddChild(target.RootNodeId, "First");
+        var last = target.AddChild(target.RootNodeId, "Last");
+        var command = new InsertSubtreeCommand(target, target.RootNodeId, template, 1);
+        command.Execute();
+
+        var copiedId = Assert.IsType<Guid>(command.CreatedRootId);
+        Assert.NotEqual(sourceBranch.Id, copiedId);
+        Assert.Equal(new[] { first.Id, copiedId, last.Id }, target.Root.ChildrenIds);
+        var copied = target.GetNode(copiedId);
+        Assert.Equal("Copied", copied.Title);
+        var nestedId = Assert.Single(copied.ChildrenIds);
+        Assert.NotEqual(sourceBranch.ChildrenIds[0], nestedId);
+        Assert.Equal("Nested", target.GetNode(nestedId).Title);
+        target.Validate();
+    }
+
+    [Fact]
+    public void UndoRedo_InsertSubtree_RestoresIdsOrderAndMetadata()
+    {
+        var document = MindMapDocument.Create("Target");
+        var first = document.AddChild(document.RootNodeId, "First");
+        var last = document.AddChild(document.RootNodeId, "Last");
+        var template = new NodeSubtreeTemplate(
+            "Copied",
+            "note",
+            "https://example.test",
+            true,
+            new[] { new NodeSubtreeTemplate("Child", null, null, false, Array.Empty<NodeSubtreeTemplate>()) });
+        var manager = new UndoRedoManager();
+        var command = new InsertSubtreeCommand(document, document.RootNodeId, template, 1);
+
+        manager.Execute(command);
+        var copiedId = Assert.IsType<Guid>(command.CreatedRootId);
+        var childId = Assert.Single(document.GetNode(copiedId).ChildrenIds);
+        Assert.True(manager.Undo());
+        Assert.False(document.Nodes.ContainsKey(copiedId));
+
+        Assert.True(manager.Redo());
+        Assert.Equal(new[] { first.Id, copiedId, last.Id }, document.Root.ChildrenIds);
+        var copied = document.GetNode(copiedId);
+        Assert.Equal("note", copied.Notes);
+        Assert.Equal("https://example.test", copied.Hyperlink);
+        Assert.True(copied.IsCollapsed);
+        Assert.Equal(childId, Assert.Single(copied.ChildrenIds));
+        document.Validate();
+    }
 }
