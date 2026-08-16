@@ -2,73 +2,27 @@
     x:Class="MindCanvas.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:MindCanvas"
     xmlns:controls="using:Microsoft.UI.Xaml.Controls">
-    <Window.SystemBackdrop>
-        <MicaBackdrop Kind="Base" />
-    </Window.SystemBackdrop>
+    <Window.SystemBackdrop><MicaBackdrop Kind="Base" /></Window.SystemBackdrop>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="48" />
-            <RowDefinition Height="40" />
-            <RowDefinition Height="48" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
+        <Grid.RowDefinitions><RowDefinition Height="48"/><RowDefinition Height="40"/><RowDefinition Height="48"/><RowDefinition Height="*"/></Grid.RowDefinitions>
         <Grid x:Name="AppTitleBar" Grid.Row="0" Background="Transparent" Padding="12,0,150,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
-                <Border Width="20" Height="20" CornerRadius="5" Background="#0078D4" />
-                <TextBlock Text="MindCanvas" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
-            </StackPanel>
-            <controls:TabView x:Name="DocumentTabs" Grid.Column="1" Height="40" VerticalAlignment="Bottom"
-                              AddTabButtonClick="DocumentTabs_AddTabButtonClick"
-                              TabCloseRequested="DocumentTabs_TabCloseRequested"
-                              SelectionChanged="DocumentTabs_SelectionChanged" />
+            <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="10"><Border Width="20" Height="20" CornerRadius="5" Background="#0078D4"/><TextBlock Text="MindCanvas" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
+            <controls:TabView x:Name="DocumentTabs" Grid.Column="1" Height="40" VerticalAlignment="Bottom" AddTabButtonClick="DocumentTabs_AddTabButtonClick" TabCloseRequested="DocumentTabs_TabCloseRequested" SelectionChanged="DocumentTabs_SelectionChanged"/>
         </Grid>
-
         <Grid Grid.Row="1" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="174,0,24,0">
             <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="22">
-                <TextBlock x:Name="ContextTitle" Text="Home" FontWeight="SemiBold" VerticalAlignment="Center" />
-                <TextBlock x:Name="ContextSubtitle" Text="Continue recent thinking, or start from a new structure." Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" VerticalAlignment="Center" />
-            </StackPanel>
-            <StackPanel x:Name="EditorViewSelector" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="4" Visibility="Collapsed">
-                <ToggleButton x:Uid="ViewMap" MinWidth="80" Height="32" />
-                <ToggleButton x:Uid="ViewOutline" MinWidth="80" Height="32" />
-                <ToggleButton x:Uid="ViewSplit" MinWidth="80" Height="32" IsChecked="True" />
-            </StackPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="22"><TextBlock x:Name="ContextTitle" Text="Home" FontWeight="SemiBold" VerticalAlignment="Center"/><TextBlock x:Name="ContextSubtitle" Text="Continue recent thinking, or start from a new structure." Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" VerticalAlignment="Center"/></StackPanel>
+            <StackPanel x:Name="EditorViewSelector" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="4" Visibility="Collapsed"><ToggleButton x:Uid="ViewMap" MinWidth="80" Height="32"/><ToggleButton x:Uid="ViewOutline" MinWidth="80" Height="32"/><ToggleButton x:Uid="ViewSplit" MinWidth="80" Height="32" IsChecked="True"/></StackPanel>
         </Grid>
-
         <CommandBar x:Name="ContextCommands" Grid.Row="2" DefaultLabelPosition="Right" IsOpen="False" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="166,0,18,0">
-            <AppBarButton x:Uid="CommandNew" Icon="Add" Click="NewDocument_Click" />
-            <AppBarButton x:Uid="CommandOpen" Icon="OpenFile" Click="OpenDocument_Click" />
-            <AppBarButton x:Uid="CommandSave" Icon="Save" Click="SaveDocument_Click" />
-            <AppBarSeparator />
-            <AppBarButton x:Uid="CommandAddChild" Icon="AddFriend" Click="AddChild_Click" />
-            <AppBarButton x:Uid="CommandUndo" Icon="Undo" Click="Undo_Click" />
-            <AppBarButton x:Uid="CommandRedo" Icon="Redo" Click="Redo_Click" />
+            <AppBarButton x:Uid="CommandNew" Icon="Add" Click="NewDocument_Click"/><AppBarButton x:Uid="CommandOpen" Icon="OpenFile" Click="OpenDocument_Click"/><AppBarButton x:Uid="CommandSave" Icon="Save" Click="SaveDocument_Click"/><AppBarButton x:Uid="CommandSaveAs" Icon="Save" Click="SaveAsDocument_Click"/><AppBarSeparator/><AppBarButton x:Uid="CommandAddChild" Icon="AddFriend" Click="AddChild_Click"/><AppBarButton x:Uid="CommandUndo" Icon="Undo" Click="Undo_Click"/><AppBarButton x:Uid="CommandRedo" Icon="Redo" Click="Redo_Click"/>
         </CommandBar>
-
-        <NavigationView x:Name="RootNavigation" Grid.Row="3"
-                        PaneDisplayMode="Left"
-                        OpenPaneLength="150"
-                        CompactPaneLength="48"
-                        IsBackButtonVisible="Collapsed"
-                        IsSettingsVisible="False"
-                        SelectionChanged="RootNavigation_SelectionChanged">
-            <NavigationView.MenuItems>
-                <NavigationViewItem x:Uid="NavHome" Tag="home"><NavigationViewItem.Icon><FontIcon Glyph="&#xE80F;" /></NavigationViewItem.Icon></NavigationViewItem>
-                <NavigationViewItem x:Uid="NavDocuments" Tag="documents"><NavigationViewItem.Icon><FontIcon Glyph="&#xE8A5;" /></NavigationViewItem.Icon></NavigationViewItem>
-                <NavigationViewItem x:Uid="NavTemplates" Tag="templates"><NavigationViewItem.Icon><FontIcon Glyph="&#xECA5;" /></NavigationViewItem.Icon></NavigationViewItem>
-            </NavigationView.MenuItems>
-            <NavigationView.FooterMenuItems>
-                <NavigationViewItem x:Uid="NavSettings" Tag="settings"><NavigationViewItem.Icon><FontIcon Glyph="&#xE713;" /></NavigationViewItem.Icon></NavigationViewItem>
-            </NavigationView.FooterMenuItems>
-            <Frame x:Name="RootFrame" />
+        <NavigationView x:Name="RootNavigation" Grid.Row="3" PaneDisplayMode="Left" OpenPaneLength="150" CompactPaneLength="48" IsBackButtonVisible="Collapsed" IsSettingsVisible="False" SelectionChanged="RootNavigation_SelectionChanged">
+            <NavigationView.MenuItems><NavigationViewItem x:Uid="NavHome" Tag="home"><NavigationViewItem.Icon><FontIcon Glyph="&#xE80F;"/></NavigationViewItem.Icon></NavigationViewItem><NavigationViewItem x:Uid="NavDocuments" Tag="documents"><NavigationViewItem.Icon><FontIcon Glyph="&#xE8A5;"/></NavigationViewItem.Icon></NavigationViewItem><NavigationViewItem x:Uid="NavTemplates" Tag="templates"><NavigationViewItem.Icon><FontIcon Glyph="&#xECA5;"/></NavigationViewItem.Icon></NavigationViewItem></NavigationView.MenuItems>
+            <NavigationView.FooterMenuItems><NavigationViewItem x:Uid="NavSettings" Tag="settings"><NavigationViewItem.Icon><FontIcon Glyph="&#xE713;"/></NavigationViewItem.Icon></NavigationViewItem></NavigationView.FooterMenuItems>
+            <Frame x:Name="RootFrame"/>
         </NavigationView>
     </Grid>
 </Window>
