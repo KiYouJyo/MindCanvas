@@ -150,10 +150,9 @@ public sealed partial class EditorPage
         if (target < 0 || target >= siblings.Count)
             return false;
 
-        // MoveNode removes the current node before inserting, so moving down
-        // needs the post-removal insertion index one position beyond target.
-        var insertionIndex = delta > 0 ? target + 1 : target;
-        _history.Execute(new MoveNodeCommand(_document, selectedId, parentId, insertionIndex));
+        // MoveNode removes the current node first, so the desired adjacent
+        // position is the target index in the post-removal sibling list.
+        _history.Execute(new MoveNodeCommand(_document, selectedId, parentId, target));
         NotifyMutation();
         return true;
     }
@@ -210,7 +209,7 @@ public sealed partial class EditorPage
         return true;
     }
 
-    private async void EditorSurfaceV02_KeyDown(object sender, KeyRoutedEventArgs e)
+    private void EditorSurfaceV02_KeyDown(object sender, KeyRoutedEventArgs e)
     {
         if (e.Handled || e.OriginalSource is TextBox)
             return;
@@ -264,12 +263,6 @@ public sealed partial class EditorPage
             VirtualKey.Right => NavigateRight(),
             _ => false
         };
-
-        if (!e.Handled && e.Key == VirtualKey.F3)
-        {
-            e.Handled = true;
-            await RenameSelectedAsync();
-        }
     }
 
     private static bool IsKeyDown(VirtualKey key)
@@ -289,8 +282,8 @@ public sealed partial class EditorPage
         var horizontal = MapScrollViewer.ViewportWidth / MapCanvas.Width;
         var vertical = MapScrollViewer.ViewportHeight / MapCanvas.Height;
         var factor = (float)(Math.Min(horizontal, vertical) * 0.92);
-        SetZoom(factor);
-        MapScrollViewer.ChangeView(0, 0, MapScrollViewer.ZoomFactor, disableAnimation: false);
+        var clamped = Math.Clamp(factor, MapScrollViewer.MinZoomFactor, MapScrollViewer.MaxZoomFactor);
+        MapScrollViewer.ChangeView(0, 0, clamped, disableAnimation: false);
     }
 
     private void MapScrollViewer_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
