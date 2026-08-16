@@ -1,5 +1,214 @@
-<Page x:Class="MindCanvas.Pages.HomePage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-<ScrollViewer><StackPanel Padding="34,26" Spacing="30">
-<StackPanel Spacing="10"><TextBlock x:Uid="HomeRecentTitle" Style="{ThemeResource SubtitleTextBlockStyle}"/><Grid ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><Border Grid.Column="0" CornerRadius="8" Padding="16" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"><StackPanel><TextBlock Text="Product launch plan" FontWeight="SemiBold"/><TextBlock Text="9 topics" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/></StackPanel></Border><Border Grid.Column="1" CornerRadius="8" Padding="16" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"><StackPanel><TextBlock Text="Research plan" FontWeight="SemiBold"/><TextBlock Text="12 topics" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/></StackPanel></Border><Border Grid.Column="2" CornerRadius="8" Padding="16" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"><StackPanel><TextBlock Text="Study notes" FontWeight="SemiBold"/><TextBlock Text="17 topics" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/></StackPanel></Border></Grid></StackPanel>
-<StackPanel Spacing="10"><TextBlock x:Uid="HomeQuickStartTitle" Style="{ThemeResource SubtitleTextBlockStyle}"/><Grid ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><Border Grid.Column="0" Height="160" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="16"><TextBlock x:Uid="TemplateMindMap" FontWeight="SemiBold" VerticalAlignment="Bottom"/></Border><Border Grid.Column="1" Height="160" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="16"><TextBlock x:Uid="TemplateLogic" FontWeight="SemiBold" VerticalAlignment="Bottom"/></Border><Border Grid.Column="2" Height="160" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="16"><TextBlock x:Uid="TemplateTree" FontWeight="SemiBold" VerticalAlignment="Bottom"/></Border><Border Grid.Column="3" Height="160" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" Padding="16"><TextBlock x:Uid="TemplateOrg" FontWeight="SemiBold" VerticalAlignment="Bottom"/></Border></Grid></StackPanel>
-</StackPanel></ScrollViewer></Page>
+<Page
+    x:Class="MindCanvas.Pages.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer>
+        <StackPanel Padding="33,26,33,40"
+                    Spacing="32"
+                    MaxWidth="1224"
+                    HorizontalAlignment="Left">
+
+            <StackPanel Spacing="10">
+                <Grid>
+                    <TextBlock x:Name="RecentHeading" FontSize="20" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="ViewAllText"
+                               HorizontalAlignment="Right"
+                               Margin="0,4,0,0"
+                               FontSize="13"
+                               Foreground="#0078D4"/>
+                </Grid>
+                <Grid ColumnSpacing="14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Height="72" CornerRadius="8" Padding="16,12"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="4"/><ColumnDefinition Width="52"/><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions>
+                            <Border Background="#0078D4" CornerRadius="2" Margin="-16,-12,0,-12"/>
+                            <Border Grid.Column="1" Width="40" Height="40" CornerRadius="8" Background="#1A0078D4" HorizontalAlignment="Center"/>
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4">
+                                <TextBlock x:Name="Recent1Title" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="Recent1Meta" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="3" Text="⋯" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1" Height="72" CornerRadius="8" Padding="16,12"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="4"/><ColumnDefinition Width="52"/><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions>
+                            <Border Background="#59B063" CornerRadius="2" Margin="-16,-12,0,-12"/>
+                            <Border Grid.Column="1" Width="40" Height="40" CornerRadius="8" Background="#1A0078D4" HorizontalAlignment="Center"/>
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4">
+                                <TextBlock x:Name="Recent2Title" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="Recent2Meta" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="3" Text="⋯" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Height="72" CornerRadius="8" Padding="16,12"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="4"/><ColumnDefinition Width="52"/><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions>
+                            <Border Background="#F29C29" CornerRadius="2" Margin="-16,-12,0,-12"/>
+                            <Border Grid.Column="1" Width="40" Height="40" CornerRadius="8" Background="#1A0078D4" HorizontalAlignment="Center"/>
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4">
+                                <TextBlock x:Name="Recent3Title" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="Recent3Meta" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="3" Text="⋯" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="3" Height="72" CornerRadius="8" Padding="16,12"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="4"/><ColumnDefinition Width="52"/><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions>
+                            <Border Background="#9E54DB" CornerRadius="2" Margin="-16,-12,0,-12"/>
+                            <Border Grid.Column="1" Width="40" Height="40" CornerRadius="8" Background="#1A0078D4" HorizontalAlignment="Center"/>
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4">
+                                <TextBlock x:Name="Recent4Title" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="Recent4Meta" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="3" Text="⋯" FontSize="18" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </StackPanel>
+
+            <StackPanel Spacing="10">
+                <TextBlock x:Name="QuickHeading" FontSize="20" FontWeight="SemiBold"/>
+                <Grid ColumnSpacing="14">
+                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Height="178" CornerRadius="8" Padding="11"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <Grid RowSpacing="8">
+                            <Grid.RowDefinitions><RowDefinition Height="92"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Grid Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                                <Border Width="56" Height="24" Background="#0078D4" CornerRadius="7"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="24,18,0,0"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,24,22"/>
+                            </Grid>
+                            <StackPanel Grid.Row="1" Spacing="3">
+                                <TextBlock x:Name="Quick1Title" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="Quick1Description" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1" Height="178" CornerRadius="8" Padding="11"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <Grid RowSpacing="8">
+                            <Grid.RowDefinitions><RowDefinition Height="92"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Grid Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                                <Border Width="56" Height="24" Background="#59B063" CornerRadius="7"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="24,18,0,0"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,24,22"/>
+                            </Grid>
+                            <StackPanel Grid.Row="1" Spacing="3">
+                                <TextBlock x:Name="Quick2Title" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="Quick2Description" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Height="178" CornerRadius="8" Padding="11"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <Grid RowSpacing="8">
+                            <Grid.RowDefinitions><RowDefinition Height="92"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Grid Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                                <Border Width="56" Height="24" Background="#F29C29" CornerRadius="7"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="24,18,0,0"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,24,22"/>
+                            </Grid>
+                            <StackPanel Grid.Row="1" Spacing="3">
+                                <TextBlock x:Name="Quick3Title" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="Quick3Description" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="3" Height="178" CornerRadius="8" Padding="11"
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <Grid RowSpacing="8">
+                            <Grid.RowDefinitions><RowDefinition Height="92"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Grid Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                                <Border Width="56" Height="24" Background="#9E54DB" CornerRadius="7"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="24,18,0,0"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,24,22"/>
+                            </Grid>
+                            <StackPanel Grid.Row="1" Spacing="3">
+                                <TextBlock x:Name="Quick4Title" FontSize="15" FontWeight="SemiBold"/>
+                                <TextBlock x:Name="Quick4Description" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </StackPanel>
+
+            <StackPanel Spacing="10">
+                <TextBlock x:Name="RecommendedHeading" FontSize="20" FontWeight="SemiBold"/>
+                <Grid ColumnSpacing="14">
+                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Height="178" CornerRadius="8" Padding="11" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <Grid RowSpacing="8"><Grid.RowDefinitions><RowDefinition Height="92"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Grid Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                                <Border Width="56" Height="24" Background="#0078D4" CornerRadius="7"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="24,18,0,0"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,24,22"/>
+                            </Grid>
+                            <StackPanel Grid.Row="1" Spacing="3"><Grid><TextBlock x:Name="Rec1Title" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="★" HorizontalAlignment="Right" Foreground="#EB9C14"/></Grid><TextBlock x:Name="Rec1Description" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/></StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1" Height="178" CornerRadius="8" Padding="11" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <Grid RowSpacing="8"><Grid.RowDefinitions><RowDefinition Height="92"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Grid Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                                <Border Width="56" Height="24" Background="#F29C29" CornerRadius="7"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="24,18,0,0"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,24,22"/>
+                            </Grid>
+                            <StackPanel Grid.Row="1" Spacing="3"><TextBlock x:Name="Rec2Title" FontSize="15" FontWeight="SemiBold"/><TextBlock x:Name="Rec2Description" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/></StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Height="178" CornerRadius="8" Padding="11" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <Grid RowSpacing="8"><Grid.RowDefinitions><RowDefinition Height="92"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Grid Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                                <Border Width="56" Height="24" Background="#59B063" CornerRadius="7"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="24,18,0,0"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,24,22"/>
+                            </Grid>
+                            <StackPanel Grid.Row="1" Spacing="3"><TextBlock x:Name="Rec3Title" FontSize="15" FontWeight="SemiBold"/><TextBlock x:Name="Rec3Description" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/></StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="3" Height="178" CornerRadius="8" Padding="11" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <Grid RowSpacing="8"><Grid.RowDefinitions><RowDefinition Height="92"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Grid Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                                <Border Width="56" Height="24" Background="#9E54DB" CornerRadius="7"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="24,18,0,0"/>
+                                <Border Width="34" Height="10" Background="#C7CFD6" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,24,22"/>
+                            </Grid>
+                            <StackPanel Grid.Row="1" Spacing="3"><TextBlock x:Name="Rec4Title" FontSize="15" FontWeight="SemiBold"/><TextBlock x:Name="Rec4Description" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/></StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
