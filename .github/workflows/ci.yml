@@ -105,9 +105,17 @@ jobs:
           if(-not $signtool){throw 'signtool.exe not found.'}
           & $signtool.FullName sign /fd SHA256 /sha1 $cert.Thumbprint /tr http://timestamp.digicert.com /td SHA256 $env:BUNDLE_PATH
           if($LASTEXITCODE-ne 0){throw "signtool failed: $LASTEXITCODE"}
+
+          # PowerShell's Get-AuthenticodeSignature can report UnknownError for a correctly signed
+          # MSIXBundle when the self-signed publisher certificate is not trusted by the ephemeral
+          # runner. Verify the signer identity first, then trust this exact test certificate only
+          # for the lifetime of the runner and ask SignTool to validate the package signature.
           $signature=Get-AuthenticodeSignature $env:BUNDLE_PATH
           if(-not $signature.SignerCertificate -or $signature.SignerCertificate.Thumbprint-ne$cert.Thumbprint){throw 'Signed bundle certificate mismatch.'}
-          if($signature.Status -ne 'Valid'){throw "Signed bundle signature status is $($signature.Status)."}
+          Import-Certificate -FilePath $cer -CertStoreLocation Cert:\CurrentUser\Root | Out-Null
+          & $signtool.FullName verify /pa /v $env:BUNDLE_PATH
+          if($LASTEXITCODE-ne 0){throw "signtool verification failed: $LASTEXITCODE"}
+
           $root=& ./packaging/New-GitHubOneClickInstallerPackage.ps1 -SignedBundlePath $env:BUNDLE_PATH -PublicCertificatePath $cer -OutputDirectory (Join-Path $work 'staging') -DisplayVersion $env:DISPLAY_VERSION -Architecture x64
           & ./packaging/Test-GitHubOneClickInstallerPackage.ps1 -ReleaseDirectory $root
           $zip=Join-Path $work "MindCanvas-v$($env:DISPLAY_VERSION)-x64-one-click-acceptance.zip"
