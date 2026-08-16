@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <RootNamespace>MindCanvas</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType>MSIX</WindowsPackageType>
+    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
+    <DefaultLanguage>zh-CN</DefaultLanguage>
+    <!-- Keep language resources inside the main application package instead of creating
+         detached language resource packages. This mirrors the proven UrbanPlanToolbox setup. -->
+    <AppxBundleAutoResourcePackageQualifiers>Scale|DXFeatureLevel</AppxBundleAutoResourcePackageQualifiers>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.3.1" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.8016" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../MindCanvas.Core/MindCanvas.Core.csproj" />
+    <ProjectReference Include="../MindCanvas.Layout/MindCanvas.Layout.csproj" />
+    <ProjectReference Include="../MindCanvas.Storage/MindCanvas.Storage.csproj" />
+    <ProjectReference Include="../MindCanvas.Update/MindCanvas.Update.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- These files are generated before build, but they must be declared at project evaluation time
+         so MSIX packaging includes every path referenced by Package.appxmanifest. -->
+    <Content Include="Assets\Generated\StoreLogo.png" />
+    <Content Include="Assets\Generated\Square44x44Logo.png" />
+    <Content Include="Assets\Generated\Square150x150Logo.png" />
+    <Content Include="Assets\Generated\Wide310x150Logo.png" />
+    <Content Include="Assets\Generated\SplashScreen.png" />
+  </ItemGroup>
+  <Target Name="GeneratePlaceholderAssets" BeforeTargets="PrepareForBuild">
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\..\eng\Generate-PlaceholderAssets.ps1&quot; -OutputDirectory &quot;$(MSBuildProjectDirectory)\Assets\Generated&quot;" />
+  </Target>
+  <Target Name="VerifyGeneratedPackageAssets" AfterTargets="GeneratePlaceholderAssets" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Generated\StoreLogo.png')" Text="Missing generated package asset: StoreLogo.png" />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Generated\Square44x44Logo.png')" Text="Missing generated package asset: Square44x44Logo.png" />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Generated\Square150x150Logo.png')" Text="Missing generated package asset: Square150x150Logo.png" />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Generated\Wide310x150Logo.png')" Text="Missing generated package asset: Wide310x150Logo.png" />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Generated\SplashScreen.png')" Text="Missing generated package asset: SplashScreen.png" />
+  </Target>
+</Project>

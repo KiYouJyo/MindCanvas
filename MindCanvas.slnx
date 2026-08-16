@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MindCanvas.App/MindCanvas.App.csproj" />
+    <Project Path="src/MindCanvas.Core/MindCanvas.Core.csproj" />
+    <Project Path="src/MindCanvas.Layout/MindCanvas.Layout.csproj" />
+    <Project Path="src/MindCanvas.Storage/MindCanvas.Storage.csproj" />
+    <Project Path="src/MindCanvas.Update/MindCanvas.Update.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MindCanvas.Core.Tests/MindCanvas.Core.Tests.csproj" />
+    <Project Path="tests/MindCanvas.Layout.Tests/MindCanvas.Layout.Tests.csproj" />
+    <Project Path="tests/MindCanvas.Storage.Tests/MindCanvas.Storage.Tests.csproj" />
+  </Folder>
+</Solution>

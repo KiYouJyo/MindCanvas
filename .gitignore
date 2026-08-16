@@ -1,0 +1,31 @@
+# Build
+bin/
+obj/
+AppPackages/
+artifacts/
+TestResults/
+*.user
+*.suo
+*.cache
+
+# Visual Studio
+.vs/
+*.VC.db
+*.VC.VC.opendb
+
+# NuGet
+packages/
+*.nupkg
+
+# Packaging secrets / local certificates
+*.pfx
+*.p12
+*.cer
+!packaging/README.certificate-placeholder.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated assets
+src/MindCanvas.App/Assets/Generated/

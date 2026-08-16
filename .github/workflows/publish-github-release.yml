@@ -1,0 +1,168 @@
+name: Publish GitHub Release
+
+on:
+  push:
+    tags: [ 'v*.*.*' ]
+    branches: [ main ]
+    paths:
+      - '.github/release-v0.1.0.trigger'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Three-part version, for example 0.1.0'
+        required: true
+        type: string
+      dry_run:
+        description: 'Build and validate without creating a GitHub Release'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-2025-vs2026
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            platform: x64
+            rid: win-x64
+          - arch: arm64
+            platform: ARM64
+            rid: win-arm64
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve version
+        id: version
+        shell: pwsh
+        run: |
+          if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
+            $version='${{ inputs.version }}'
+          } elseif ('${{ github.ref }}'.StartsWith('refs/tags/')) {
+            $version='${{ github.ref_name }}'.TrimStart('v')
+          } else {
+            [xml]$manifest=Get-Content src/MindCanvas.App/Package.appxmanifest -Raw
+            $packageVersion=$manifest.Package.Identity.Version
+            if($packageVersion -notmatch '^(\d+\.\d+\.\d+)\.0$'){throw "Invalid package version: $packageVersion"}
+            $version=$Matches[1]
+          }
+          if($version -notmatch '^\d+\.\d+\.\d+$'){throw "Invalid release version: $version"}
+          "version=$version" | Out-File $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "package_version=$version.0" | Out-File $env:GITHUB_OUTPUT -Encoding utf8 -Append
+      - name: Validate version
+        shell: pwsh
+        run: |
+          [xml]$manifest=Get-Content src/MindCanvas.App/Package.appxmanifest -Raw
+          if($manifest.Package.Identity.Version -ne '${{ steps.version.outputs.package_version }}'){throw "Manifest version $($manifest.Package.Identity.Version) does not match release ${{ steps.version.outputs.package_version }}"}
+      - name: Validate signing secrets
+        shell: pwsh
+        env:
+          PFX_BASE64: ${{ secrets.GH_RELEASE_CERTIFICATE_BASE64 }}
+          PFX_PASSWORD: ${{ secrets.GH_RELEASE_CERTIFICATE_PASSWORD }}
+        run: |
+          if([string]::IsNullOrWhiteSpace($env:PFX_BASE64)-or[string]::IsNullOrWhiteSpace($env:PFX_PASSWORD)){throw 'GitHub release signing secrets are not configured.'}
+      - name: Test core libraries
+        shell: pwsh
+        run: |
+          dotnet test tests/MindCanvas.Core.Tests/MindCanvas.Core.Tests.csproj -c Release
+          dotnet test tests/MindCanvas.Layout.Tests/MindCanvas.Layout.Tests.csproj -c Release
+          dotnet test tests/MindCanvas.Storage.Tests/MindCanvas.Storage.Tests.csproj -c Release
+      - name: Build unsigned MSIX bundle
+        shell: pwsh
+        run: |
+          $out=Join-Path $env:RUNNER_TEMP 'AppPackages'
+          dotnet restore src/MindCanvas.App/MindCanvas.App.csproj -p:Platform=${{ matrix.platform }} -r ${{ matrix.rid }}
+          dotnet build src/MindCanvas.App/MindCanvas.App.csproj -c Release -p:Platform=${{ matrix.platform }} -r ${{ matrix.rid }} -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false -p:AppxBundle=Always -p:AppxBundlePlatforms=${{ matrix.platform }} -p:UapAppxPackageBuildMode=SideloadOnly -p:AppxPackageDir="$out\" --no-restore
+          $bundle=Get-ChildItem $out -Recurse -Filter '*.msixbundle' | Select-Object -First 1
+          if(-not $bundle){throw 'MSIX bundle was not produced.'}
+          $renamed=Join-Path $env:RUNNER_TEMP "MindCanvas_${{ steps.version.outputs.package_version }}_${{ matrix.arch }}.msixbundle"
+          Copy-Item $bundle.FullName $renamed -Force
+          "BUNDLE_PATH=$renamed" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Sign and package
+        shell: pwsh
+        env:
+          PFX_BASE64: ${{ secrets.GH_RELEASE_CERTIFICATE_BASE64 }}
+          PFX_PASSWORD: ${{ secrets.GH_RELEASE_CERTIFICATE_PASSWORD }}
+        run: |
+          $work=Join-Path $env:RUNNER_TEMP 'release';New-Item -ItemType Directory -Path $work -Force|Out-Null
+          $pfx=Join-Path $work 'release.pfx';[IO.File]::WriteAllBytes($pfx,[Convert]::FromBase64String($env:PFX_BASE64))
+          $secure=ConvertTo-SecureString $env:PFX_PASSWORD -AsPlainText -Force
+          $cert=Import-PfxCertificate -FilePath $pfx -CertStoreLocation Cert:\CurrentUser\My -Password $secure
+          if(-not $cert -or $cert.Subject -cne 'CN=AppPublisher' -or -not $cert.HasPrivateKey){throw "Unexpected publishing certificate: $($cert.Subject)"}
+          $cer=Join-Path $work 'MindCanvas.cer';Export-Certificate -Cert $cert -FilePath $cer|Out-Null
+          $kits=${env:ProgramFiles(x86)};if(-not $kits){throw 'ProgramFiles(x86) is unavailable.'}
+          $signtool=Get-ChildItem "$kits\Windows Kits\10\bin" -Recurse -Filter signtool.exe|Where-Object FullName -match '\\x64\\signtool.exe$'|Sort-Object FullName -Descending|Select-Object -First 1
+          if(-not $signtool){throw 'signtool.exe not found.'}
+          & $signtool.FullName sign /fd SHA256 /sha1 $cert.Thumbprint /tr http://timestamp.digicert.com /td SHA256 $env:BUNDLE_PATH
+          if($LASTEXITCODE-ne 0){throw "signtool failed: $LASTEXITCODE"}
+          $signature=Get-AuthenticodeSignature $env:BUNDLE_PATH
+          if(-not $signature.SignerCertificate -or $signature.SignerCertificate.Thumbprint-ne$cert.Thumbprint){throw 'Signed bundle certificate mismatch.'}
+          $staging=Join-Path $work 'staging'
+          $root=& ./packaging/New-GitHubOneClickInstallerPackage.ps1 -SignedBundlePath $env:BUNDLE_PATH -PublicCertificatePath $cer -OutputDirectory $staging -DisplayVersion '${{ steps.version.outputs.version }}' -Architecture '${{ matrix.arch }}'
+          & ./packaging/Test-GitHubOneClickInstallerPackage.ps1 -ReleaseDirectory $root
+          $zip=Join-Path $work "MindCanvas-v${{ steps.version.outputs.version }}-${{ matrix.arch }}-one-click.zip";Compress-Archive -LiteralPath $root -DestinationPath $zip -CompressionLevel Optimal
+          Copy-Item $env:BUNDLE_PATH $work -Force
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.arch }}
+          path: |
+            ${{ runner.temp }}/release/*.zip
+            ${{ runner.temp }}/release/*.msixbundle
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: windows-2025-vs2026
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve version
+        id: version
+        shell: pwsh
+        run: |
+          if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
+            $version='${{ inputs.version }}'
+          } elseif ('${{ github.ref }}'.StartsWith('refs/tags/')) {
+            $version='${{ github.ref_name }}'.TrimStart('v')
+          } else {
+            [xml]$manifest=Get-Content src/MindCanvas.App/Package.appxmanifest -Raw
+            $packageVersion=$manifest.Package.Identity.Version
+            if($packageVersion -notmatch '^(\d+\.\d+\.\d+)\.0$'){throw "Invalid package version: $packageVersion"}
+            $version=$Matches[1]
+          }
+          if($version -notmatch '^\d+\.\d+\.\d+$'){throw "Invalid release version: $version"}
+          "version=$version" | Out-File $env:GITHUB_OUTPUT -Encoding utf8 -Append
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: release-assets
+          merge-multiple: true
+      - name: Create checksums
+        shell: pwsh
+        run: |
+          $lines=Get-ChildItem release-assets -File | Sort-Object Name | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(),$_.Name }
+          Set-Content release-assets/SHA256SUMS.txt $lines -Encoding ASCII
+      - name: Publish release
+        if: ${{ github.event_name == 'push' || inputs.dry_run != true }}
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag="v${{ steps.version.outputs.version }}"
+          git fetch --tags --force
+          if(-not (git tag --list $tag)) {
+            git tag $tag '${{ github.sha }}'
+            git push origin $tag
+          }
+          $notesPath="docs/releases/$tag.md"
+          if(Test-Path $notesPath){$notesArgs=@('--notes-file',$notesPath)}else{$notesArgs=@('--notes',"MindCanvas $tag Preview release. See CHANGELOG.md for details.")}
+          gh release view $tag *> $null
+          if($LASTEXITCODE -eq 0) {
+            gh release upload $tag release-assets/* --clobber
+            gh release edit $tag --title "MindCanvas $tag" @notesArgs
+          } else {
+            gh release create $tag release-assets/* --verify-tag --title "MindCanvas $tag" @notesArgs
+          }
