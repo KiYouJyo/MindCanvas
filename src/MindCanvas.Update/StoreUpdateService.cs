@@ -4,14 +4,21 @@ namespace MindCanvas.Update;
 
 public sealed class StoreUpdateService : IUpdateService
 {
-    private readonly StoreContext _storeContext = StoreContext.GetDefault();
+    private StoreContext? _storeContext;
     private IReadOnlyList<StorePackageUpdate> _pending = [];
 
     public DistributionChannel Channel => DistributionChannel.MicrosoftStore;
 
+    private StoreContext GetStoreContext()
+    {
+        // StoreContext can fail for sideloaded/non-Store-associated packages. Never create it
+        // during static application startup; only resolve it when the Store channel is used.
+        return _storeContext ??= StoreContext.GetDefault();
+    }
+
     public async Task<UpdateInfo?> CheckAsync(Version currentVersion, CancellationToken cancellationToken = default)
     {
-        var updates = await _storeContext.GetAppAndOptionalStorePackageUpdatesAsync();
+        var updates = await GetStoreContext().GetAppAndOptionalStorePackageUpdatesAsync();
         _pending = updates.ToArray();
         if (_pending.Count == 0)
             return null;
@@ -30,7 +37,7 @@ public sealed class StoreUpdateService : IUpdateService
         try
         {
             progress?.Report(0.1);
-            var result = await _storeContext.RequestDownloadAndInstallStorePackageUpdatesAsync(_pending);
+            var result = await GetStoreContext().RequestDownloadAndInstallStorePackageUpdatesAsync(_pending);
             progress?.Report(1.0);
             return result.OverallState == StorePackageUpdateState.Completed
                 ? UpdateResult.Success(UpdateState.RestartRequired, "Microsoft Store update installed.")
