@@ -3,6 +3,7 @@ bin/
 obj/
 AppPackages/
 artifacts/
+BundleArtifacts/
 TestResults/
 *.user
 *.suo

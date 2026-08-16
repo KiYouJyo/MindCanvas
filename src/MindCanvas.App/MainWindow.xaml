@@ -7,7 +7,7 @@
         <MicaBackdrop Kind="Base" />
     </Window.SystemBackdrop>
 
-    <Grid Background="{StaticResource V4WindowBackgroundBrush}">
+    <Grid Background="{ThemeResource V4WindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
             <RowDefinition Height="40" />
@@ -15,7 +15,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid x:Name="AppTitleBar" Grid.Row="0" Background="{StaticResource V4TitleBarBackgroundBrush}">
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Background="{ThemeResource V4TitleBarBackgroundBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="150" />
                 <ColumnDefinition Width="*" />
@@ -23,7 +23,7 @@
 
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0" Spacing="10">
                 <Border Width="20" Height="20" CornerRadius="5" Background="{StaticResource MindCanvasAccentBrush}" />
-                <TextBlock Text="MindCanvas" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource V4TextPrimaryBrush}" VerticalAlignment="Center" />
+                <TextBlock Text="MindCanvas" FontSize="16" FontWeight="SemiBold" Foreground="{ThemeResource V4TextPrimaryBrush}" VerticalAlignment="Center" />
             </StackPanel>
 
             <controls:TabView
@@ -41,8 +41,8 @@
         <Grid Grid.Row="1">
             <Border
                 x:Name="ContextIdentity"
-                Background="{StaticResource V4ContextIdentityBackgroundBrush}"
-                BorderBrush="{StaticResource V4DividerBrush}"
+                Background="{ThemeResource V4ContextIdentityBackgroundBrush}"
+                BorderBrush="{ThemeResource V4DividerBrush}"
                 BorderThickness="0,0,0,1">
                 <Grid Padding="174,0,51,0">
                     <Grid.ColumnDefinitions>
@@ -50,8 +50,8 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                        <TextBlock x:Name="ContextTitle" FontSize="16" FontWeight="Medium" Foreground="{StaticResource V4TextPrimaryBrush}" VerticalAlignment="Center" />
-                        <TextBlock x:Name="ContextSubtitle" FontSize="12" Foreground="{StaticResource V4TextMutedBrush}" VerticalAlignment="Center" />
+                        <TextBlock x:Name="ContextTitle" FontSize="16" FontWeight="Medium" Foreground="{ThemeResource V4TextPrimaryBrush}" VerticalAlignment="Center" />
+                        <TextBlock x:Name="ContextSubtitle" FontSize="12" Foreground="{ThemeResource V4TextMutedBrush}" VerticalAlignment="Center" />
                     </StackPanel>
                     <StackPanel
                         x:Name="EditorViewSelector"
@@ -60,17 +60,17 @@
                         VerticalAlignment="Center"
                         Spacing="4"
                         Visibility="Collapsed">
-                        <ToggleButton x:Name="ViewMap" Style="{StaticResource V4EditorViewButtonStyle}" IsChecked="False" Click="ViewMode_Click" Tag="map" />
-                        <ToggleButton x:Name="ViewOutline" Style="{StaticResource V4EditorViewButtonStyle}" IsChecked="False" Click="ViewMode_Click" Tag="outline" />
-                        <ToggleButton x:Name="ViewSplit" Style="{StaticResource V4EditorViewButtonStyle}" IsChecked="True" Click="ViewMode_Click" Tag="split" />
+                        <ToggleButton x:Name="ViewMap" Style="{ThemeResource V4EditorViewButtonStyle}" IsChecked="False" Click="ViewMode_Click" Tag="map" />
+                        <ToggleButton x:Name="ViewOutline" Style="{ThemeResource V4EditorViewButtonStyle}" IsChecked="False" Click="ViewMode_Click" Tag="outline" />
+                        <ToggleButton x:Name="ViewSplit" Style="{ThemeResource V4EditorViewButtonStyle}" IsChecked="True" Click="ViewMode_Click" Tag="split" />
                     </StackPanel>
                 </Grid>
             </Border>
 
             <Border
                 x:Name="EditorCategoryBar"
-                Background="{StaticResource V4ContextIdentityBackgroundBrush}"
-                BorderBrush="{StaticResource V4DividerBrush}"
+                Background="{ThemeResource V4ContextIdentityBackgroundBrush}"
+                BorderBrush="{ThemeResource V4DividerBrush}"
                 BorderThickness="0,0,0,1"
                 Visibility="Collapsed">
                 <Grid Padding="174,0,51,0">
@@ -79,20 +79,20 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="0">
-                        <ToggleButton x:Name="EditorCategoryStart" Style="{StaticResource V4EditorCategoryButtonStyle}" IsChecked="True" Click="EditorCategory_Click" Tag="start" />
-                        <ToggleButton x:Name="EditorCategoryInsert" Style="{StaticResource V4EditorCategoryButtonStyle}" Click="EditorCategory_Click" Tag="insert" />
-                        <ToggleButton x:Name="EditorCategoryStyle" Style="{StaticResource V4EditorCategoryButtonStyle}" Click="EditorCategory_Click" Tag="style" />
-                        <ToggleButton x:Name="EditorCategoryView" Style="{StaticResource V4EditorCategoryButtonStyle}" Click="EditorCategory_Click" Tag="view" />
-                        <ToggleButton x:Name="EditorCategoryTools" Style="{StaticResource V4EditorCategoryButtonStyle}" Click="EditorCategory_Click" Tag="tools" />
+                        <ToggleButton x:Name="EditorCategoryStart" Style="{ThemeResource V4EditorCategoryButtonStyle}" IsChecked="True" Click="EditorCategory_Click" Tag="start" />
+                        <ToggleButton x:Name="EditorCategoryInsert" Style="{ThemeResource V4EditorCategoryButtonStyle}" Click="EditorCategory_Click" Tag="insert" />
+                        <ToggleButton x:Name="EditorCategoryStyle" Style="{ThemeResource V4EditorCategoryButtonStyle}" Click="EditorCategory_Click" Tag="style" />
+                        <ToggleButton x:Name="EditorCategoryView" Style="{ThemeResource V4EditorCategoryButtonStyle}" Click="EditorCategory_Click" Tag="view" />
+                        <ToggleButton x:Name="EditorCategoryTools" Style="{ThemeResource V4EditorCategoryButtonStyle}" Click="EditorCategory_Click" Tag="tools" />
                     </StackPanel>
                     <StackPanel
                         Grid.Column="1"
                         Orientation="Horizontal"
                         VerticalAlignment="Center"
                         Spacing="4">
-                        <ToggleButton x:Name="EditorViewMap" Style="{StaticResource V4EditorViewButtonStyle}" IsChecked="False" Click="ViewMode_Click" Tag="map" />
-                        <ToggleButton x:Name="EditorViewOutline" Style="{StaticResource V4EditorViewButtonStyle}" IsChecked="False" Click="ViewMode_Click" Tag="outline" />
-                        <ToggleButton x:Name="EditorViewSplit" Style="{StaticResource V4EditorViewButtonStyle}" IsChecked="True" Click="ViewMode_Click" Tag="split" />
+                        <ToggleButton x:Name="EditorViewMap" Style="{ThemeResource V4EditorViewButtonStyle}" IsChecked="False" Click="ViewMode_Click" Tag="map" />
+                        <ToggleButton x:Name="EditorViewOutline" Style="{ThemeResource V4EditorViewButtonStyle}" IsChecked="False" Click="ViewMode_Click" Tag="outline" />
+                        <ToggleButton x:Name="EditorViewSplit" Style="{ThemeResource V4EditorViewButtonStyle}" IsChecked="True" Click="ViewMode_Click" Tag="split" />
                     </StackPanel>
                 </Grid>
             </Border>
@@ -101,14 +101,14 @@
         <Grid Grid.Row="2">
             <Border
                 x:Name="ContextActions"
-                Background="{StaticResource V4ContextActionsBackgroundBrush}"
-                BorderBrush="{StaticResource V4DividerBrush}"
+                Background="{ThemeResource V4ContextActionsBackgroundBrush}"
+                BorderBrush="{ThemeResource V4DividerBrush}"
                 BorderThickness="0,0,0,1">
                 <Grid Padding="174,0,51,0">
                     <StackPanel x:Name="HomeActions" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                        <Button x:Name="HomeNewMapButton" Height="32" MinWidth="126" Background="{StaticResource V4ControlSelectedBackgroundBrush}" BorderBrush="{StaticResource V4ControlSelectedStrokeBrush}" Foreground="{StaticResource V4ControlSelectedForegroundBrush}" Click="NewDocument_Click" />
-                        <Button x:Name="HomeFromTemplateButton" Height="32" MinWidth="142" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" Click="FromTemplate_Click" />
-                        <Button x:Name="HomeImportButton" Height="32" MinWidth="90" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" Click="OpenDocument_Click" />
+                        <Button x:Name="HomeNewMapButton" Height="32" MinWidth="126" Background="{ThemeResource V4ControlSelectedBackgroundBrush}" BorderBrush="{ThemeResource V4ControlSelectedStrokeBrush}" Foreground="{ThemeResource V4ControlSelectedForegroundBrush}" Click="NewDocument_Click" />
+                        <Button x:Name="HomeFromTemplateButton" Height="32" MinWidth="142" Background="{ThemeResource V4ControlBackgroundBrush}" BorderBrush="{ThemeResource V4ControlStrokeBrush}" Foreground="{ThemeResource V4TextPrimaryBrush}" Click="FromTemplate_Click" />
+                        <Button x:Name="HomeImportButton" Height="32" MinWidth="90" Background="{ThemeResource V4ControlBackgroundBrush}" BorderBrush="{ThemeResource V4ControlStrokeBrush}" Foreground="{ThemeResource V4TextPrimaryBrush}" Click="OpenDocument_Click" />
                     </StackPanel>
 
                     <Grid x:Name="DocumentsActions" Visibility="Collapsed">
@@ -116,12 +116,12 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBox x:Name="DocumentsSearchBox" Width="380" Height="32" VerticalAlignment="Center" HorizontalAlignment="Left" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" />
+                        <TextBox x:Name="DocumentsSearchBox" Width="380" Height="32" VerticalAlignment="Center" HorizontalAlignment="Left" Background="{ThemeResource V4ControlBackgroundBrush}" BorderBrush="{ThemeResource V4ControlStrokeBrush}" />
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                            <ToggleButton x:Name="DocumentsListButton" Width="76" Height="32" IsChecked="True" Background="{StaticResource V4ControlSelectedBackgroundBrush}" BorderBrush="{StaticResource V4ControlSelectedStrokeBrush}" Foreground="{StaticResource V4ControlSelectedForegroundBrush}" />
-                            <ToggleButton x:Name="DocumentsGridButton" Width="76" Height="32" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" />
-                            <Button x:Name="DocumentsNewFolderButton" MinWidth="126" Height="32" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" />
-                            <Button x:Name="DocumentsNewMapButton" MinWidth="138" Height="32" Background="{StaticResource V4ControlSelectedBackgroundBrush}" BorderBrush="{StaticResource V4ControlSelectedStrokeBrush}" Foreground="{StaticResource V4ControlSelectedForegroundBrush}" Click="NewDocument_Click" />
+                            <ToggleButton x:Name="DocumentsListButton" Width="76" Height="32" IsChecked="True" Background="{ThemeResource V4ControlSelectedBackgroundBrush}" BorderBrush="{ThemeResource V4ControlSelectedStrokeBrush}" Foreground="{ThemeResource V4ControlSelectedForegroundBrush}" />
+                            <ToggleButton x:Name="DocumentsGridButton" Width="76" Height="32" Background="{ThemeResource V4ControlBackgroundBrush}" BorderBrush="{ThemeResource V4ControlStrokeBrush}" Foreground="{ThemeResource V4TextPrimaryBrush}" />
+                            <Button x:Name="DocumentsNewFolderButton" MinWidth="126" Height="32" Background="{ThemeResource V4ControlBackgroundBrush}" BorderBrush="{ThemeResource V4ControlStrokeBrush}" Foreground="{ThemeResource V4TextPrimaryBrush}" />
+                            <Button x:Name="DocumentsNewMapButton" MinWidth="138" Height="32" Background="{ThemeResource V4ControlSelectedBackgroundBrush}" BorderBrush="{ThemeResource V4ControlSelectedStrokeBrush}" Foreground="{ThemeResource V4ControlSelectedForegroundBrush}" Click="NewDocument_Click" />
                         </StackPanel>
                     </Grid>
 
@@ -131,11 +131,11 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                            <ToggleButton x:Name="TemplatesRecommendedButton" Width="96" Height="32" IsChecked="True" Background="{StaticResource V4ControlSelectedBackgroundBrush}" BorderBrush="{StaticResource V4ControlSelectedStrokeBrush}" Foreground="{StaticResource V4ControlSelectedForegroundBrush}" />
-                            <ToggleButton x:Name="TemplatesAllButton" Width="96" Height="32" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" />
-                            <ToggleButton x:Name="TemplatesFavoritesButton" Width="96" Height="32" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" />
+                            <ToggleButton x:Name="TemplatesRecommendedButton" Width="96" Height="32" IsChecked="True" Background="{ThemeResource V4ControlSelectedBackgroundBrush}" BorderBrush="{ThemeResource V4ControlSelectedStrokeBrush}" Foreground="{ThemeResource V4ControlSelectedForegroundBrush}" />
+                            <ToggleButton x:Name="TemplatesAllButton" Width="96" Height="32" Background="{ThemeResource V4ControlBackgroundBrush}" BorderBrush="{ThemeResource V4ControlStrokeBrush}" Foreground="{ThemeResource V4TextPrimaryBrush}" />
+                            <ToggleButton x:Name="TemplatesFavoritesButton" Width="96" Height="32" Background="{ThemeResource V4ControlBackgroundBrush}" BorderBrush="{ThemeResource V4ControlStrokeBrush}" Foreground="{ThemeResource V4TextPrimaryBrush}" />
                         </StackPanel>
-                        <TextBox x:Name="TemplatesSearchBox" Grid.Column="1" Width="404" Height="32" VerticalAlignment="Center" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4CardStrokeBrush}" />
+                        <TextBox x:Name="TemplatesSearchBox" Grid.Column="1" Width="404" Height="32" VerticalAlignment="Center" Background="{ThemeResource V4ControlBackgroundBrush}" BorderBrush="{ThemeResource V4CardStrokeBrush}" />
                     </Grid>
 
                     <Grid x:Name="SettingsActions" Visibility="Collapsed">
@@ -143,8 +143,8 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBox x:Name="SettingsSearchBox" Width="420" Height="38" VerticalAlignment="Center" HorizontalAlignment="Left" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4DividerStrongBrush}" />
-                        <Button x:Name="SettingsResetButton" Grid.Column="1" Width="144" Height="32" VerticalAlignment="Center" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" Click="SettingsResetButton_Click" />
+                        <TextBox x:Name="SettingsSearchBox" Width="420" Height="38" VerticalAlignment="Center" HorizontalAlignment="Left" Background="{ThemeResource V4ControlBackgroundBrush}" BorderBrush="{ThemeResource V4DividerStrongBrush}" />
+                        <Button x:Name="SettingsResetButton" Grid.Column="1" Width="144" Height="32" VerticalAlignment="Center" Background="{ThemeResource V4ControlBackgroundBrush}" BorderBrush="{ThemeResource V4ControlStrokeBrush}" Foreground="{ThemeResource V4TextPrimaryBrush}" Click="SettingsResetButton_Click" />
                     </Grid>
 
                     <controls:CommandBar
@@ -167,8 +167,8 @@
 
             <Border
                 x:Name="EditorCommandBar"
-                Background="{StaticResource V4ContextActionsBackgroundBrush}"
-                BorderBrush="{StaticResource V4DividerBrush}"
+                Background="{ThemeResource V4ContextActionsBackgroundBrush}"
+                BorderBrush="{ThemeResource V4DividerBrush}"
                 BorderThickness="0,0,0,1"
                 Visibility="Collapsed">
                 <Grid Padding="174,0,51,0">
@@ -194,7 +194,7 @@
         <controls:NavigationView
             x:Name="RootNavigation"
             Grid.Row="3"
-            Background="{StaticResource V4NavigationBackgroundBrush}"
+            Background="{ThemeResource V4NavigationBackgroundBrush}"
             PaneDisplayMode="Left"
             OpenPaneLength="150"
             CompactPaneLength="48"

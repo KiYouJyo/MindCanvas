@@ -2,6 +2,7 @@ using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using MindCanvas.Theming;
 using MindCanvas.Update;
 using Windows.UI;
 
@@ -36,6 +37,7 @@ public sealed partial class SettingsPage : Page
 
     public void ResetToDefaults()
     {
+        ThemeService.SetPreference(AppThemePreference.System);
         SettingsCategories.SelectedIndex = 0;
         RenderCategory(0);
     }
@@ -59,7 +61,7 @@ public sealed partial class SettingsPage : Page
                 AddToggle(T("Autosave", "自动保存", "自動保存"), T("Save the current document automatically while editing.", "编辑时自动保存当前文档。", "編集中のドキュメントを自動保存します。"), true);
                 AddToggle(T("Restore previous session", "启动时恢复上次会话", "前回のセッションを復元"), T("Reopen documents that were still open when MindCanvas closed.", "重新打开上次关闭时仍在编辑的文档。", "終了時に開いていたドキュメントを再度開きます。"), true);
                 AddChoice(T("Interface language", "界面语言", "表示言語"), T("Change the language used by menus, buttons and system messages.", "更改菜单、按钮和系统提示的语言。", "メニュー、ボタン、システムメッセージの言語を変更します。"), new[] { "English", "简体中文", "日本語" }, CurrentLanguageLabel());
-                AddChoice(T("App theme", "应用主题", "アプリテーマ"), T("Follow Windows or use a fixed light or dark theme.", "跟随 Windows 系统主题或固定浅色 / 深色。", "Windows に合わせるか、ライト / ダークを固定します。"), new[] { T("System", "跟随系统", "システムに合わせる"), T("Light", "浅色", "ライト"), T("Dark", "深色", "ダーク") }, T("System", "跟随系统", "システムに合わせる"));
+                AddThemeChoice(T("App theme", "应用主题", "アプリテーマ"), T("Follow Windows or use a fixed light or dark theme.", "跟随 Windows 系统主题或固定浅色 / 深色。", "Windows に合わせるか、ライト / ダークを固定します。"));
                 AddChoice(T("Default new structure", "默认新建结构", "新規作成の既定構造"), T("Structure used when creating a blank document.", "创建空白文档时默认使用的结构。", "空白ドキュメント作成時に使用する構造です。"), new[] { T("Mind map", "思维导图", "マインドマップ"), T("Logic chart", "逻辑图", "ロジック図"), T("Tree chart", "树状图", "ツリー図") }, T("Mind map", "思维导图", "マインドマップ"));
                 break;
 
@@ -72,7 +74,7 @@ public sealed partial class SettingsPage : Page
                 break;
 
             case 2:
-                AddChoice(T("App theme", "应用主题", "アプリテーマ"), T("Choose light, dark, or follow Windows.", "选择浅色、深色，或跟随 Windows 系统。", "ライト、ダーク、または Windows に合わせます。"), new[] { T("System", "跟随系统", "システムに合わせる"), T("Light", "浅色", "ライト"), T("Dark", "深色", "ダーク") }, T("System", "跟随系统", "システムに合わせる"));
+                AddThemeChoice(T("App theme", "应用主题", "アプリテーマ"), T("Choose light, dark, or follow Windows.", "选择浅色、深色，或跟随 Windows 系统。", "ライト、ダーク、または Windows に合わせます。"));
                 AddAccentColors();
                 AddToggle(T("Mica background", "Mica 背景", "Mica 背景"), T("Use Windows Mica material on supported devices.", "在支持的设备上使用 Windows Mica 材质。", "対応デバイスで Windows Mica 素材を使用します。"), true);
                 AddChoice(T("Navigation density", "导航密度", "ナビゲーション密度"), T("Adjust vertical spacing in navigation and list items.", "调整左侧导航与列表项目的垂直间距。", "ナビゲーションとリスト項目の縦方向の間隔を調整します。"), new[] { T("Comfortable", "舒适", "標準"), T("Compact", "紧凑", "コンパクト") }, T("Comfortable", "舒适", "標準"));
@@ -134,6 +136,39 @@ public sealed partial class SettingsPage : Page
         combo.SelectedItem = selected;
         if (combo.SelectedIndex < 0 && combo.Items.Count > 0) combo.SelectedIndex = 0;
         SettingsCards.Children.Add(CreateSettingCard(title, description, combo));
+    }
+
+    private void AddThemeChoice(string title, string description)
+    {
+        var combo = new ComboBox
+        {
+            Width = 160,
+            Height = 36,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        combo.Items.Add(T("System", "跟随系统", "システムに合わせる"));
+        combo.Items.Add(T("Light", "浅色", "ライト"));
+        combo.Items.Add(T("Dark", "深色", "ダーク"));
+        combo.SelectedIndex = ThemeService.Preference switch
+        {
+            AppThemePreference.Light => 1,
+            AppThemePreference.Dark => 2,
+            _ => 0
+        };
+        combo.SelectionChanged += ThemeCombo_SelectionChanged;
+        SettingsCards.Children.Add(CreateSettingCard(title, description, combo));
+    }
+
+    private void ThemeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not ComboBox combo || combo.SelectedIndex < 0) return;
+        ThemeService.SetPreference(combo.SelectedIndex switch
+        {
+            1 => AppThemePreference.Light,
+            2 => AppThemePreference.Dark,
+            _ => AppThemePreference.System
+        });
     }
 
     private void AddAccentColors()
@@ -314,14 +349,7 @@ public sealed partial class SettingsPage : Page
 
     private static Brush ResourceBrush(string key, Color fallback)
     {
-        try
-        {
-            if (Application.Current.Resources[key] is Brush brush) return brush;
-        }
-        catch
-        {
-        }
-        return new SolidColorBrush(fallback);
+        return ThemeService.GetBrush(key, fallback);
     }
 
     private static string T(string en, string zh, string ja)

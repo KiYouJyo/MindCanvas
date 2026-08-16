@@ -7,57 +7,153 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
+
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="V4WindowBackgroundBrush" Color="#F3F3F3" />
+                    <SolidColorBrush x:Key="V4TitleBarBackgroundBrush" Color="#F3F3F3" />
+                    <SolidColorBrush x:Key="V4ContextIdentityBackgroundBrush" Color="#F3F3F3" />
+                    <SolidColorBrush x:Key="V4ContextActionsBackgroundBrush" Color="#F9F9F9" />
+                    <SolidColorBrush x:Key="V4NavigationBackgroundBrush" Color="#F3F3F3" />
+                    <SolidColorBrush x:Key="V4NavigationDividerBrush" Color="#D6DBE3" />
+                    <SolidColorBrush x:Key="V4NavigationSelectedBackgroundBrush" Color="#E7F1FB" />
+                    <SolidColorBrush x:Key="V4NavigationSelectedForegroundBrush" Color="#005FB8" />
+                    <SolidColorBrush x:Key="V4NavigationIndicatorBrush" Color="#005FB8" />
+                    <SolidColorBrush x:Key="V4NavigationForegroundBrush" Color="#1A1A1A" />
+                    <SolidColorBrush x:Key="V4NavigationSecondaryForegroundBrush" Color="#616975" />
+                    <SolidColorBrush x:Key="V4TextPrimaryBrush" Color="#1A1A1A" />
+                    <SolidColorBrush x:Key="V4TextSecondaryBrush" Color="#616975" />
+                    <SolidColorBrush x:Key="V4TextMutedBrush" Color="#5E5E5E" />
+                    <SolidColorBrush x:Key="V4TextStrongBrush" Color="#171A1F" />
+                    <SolidColorBrush x:Key="V4AccentBrush" Color="#0078D6" />
+                    <SolidColorBrush x:Key="V4AccentStrongBrush" Color="#086BC2" />
+                    <SolidColorBrush x:Key="V4AccentForegroundBrush" Color="#0063BA" />
+                    <SolidColorBrush x:Key="V4AccentSubtleBrush" Color="#E8F2FC" />
+                    <SolidColorBrush x:Key="V4DividerBrush" Color="#E5E5E5" />
+                    <SolidColorBrush x:Key="V4DividerStrongBrush" Color="#D1D1D1" />
+                    <SolidColorBrush x:Key="V4CardBackgroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="V4CardStrokeBrush" Color="#EBEBEB" />
+                    <SolidColorBrush x:Key="V4ControlBackgroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="V4ControlStrokeBrush" Color="#D1D1D1" />
+                    <SolidColorBrush x:Key="V4ControlHoverBackgroundBrush" Color="#F4F6F8" />
+                    <SolidColorBrush x:Key="V4ControlSelectedBackgroundBrush" Color="#E7F1FB" />
+                    <SolidColorBrush x:Key="V4ControlSelectedStrokeBrush" Color="#60A6E6" />
+                    <SolidColorBrush x:Key="V4ControlSelectedForegroundBrush" Color="#005FB8" />
+                    <SolidColorBrush x:Key="V4PreviewBackgroundBrush" Color="#F9FAFB" />
+                    <SolidColorBrush x:Key="V4PreviewBranchBrush" Color="#C7CFD6" />
+                    <SolidColorBrush x:Key="V4StarBrush" Color="#EB9C14" />
+                    <SolidColorBrush x:Key="V4StatusProgressBackgroundBrush" Color="#E0F0FF" />
+                    <SolidColorBrush x:Key="V4StatusDoneBackgroundBrush" Color="#E5F7E5" />
+                    <SolidColorBrush x:Key="V4StatusWarnBackgroundBrush" Color="#FFF2DE" />
+                    <SolidColorBrush x:Key="V4StatusTodoBackgroundBrush" Color="#F2EDFC" />
+                    <SolidColorBrush x:Key="V4CanvasGridLineBrush" Color="#EDEDED" />
+                    <SolidColorBrush x:Key="V4NodeBackgroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="V4NodeStrokeBrush" Color="#EBEBEB" />
+                    <SolidColorBrush x:Key="V4NodeAccentBlueBrush" Color="#086BC2" />
+                    <SolidColorBrush x:Key="V4NodeAccentGreenBrush" Color="#529E4D" />
+                    <SolidColorBrush x:Key="V4NodeAccentOrangeBrush" Color="#EB9426" />
+                    <SolidColorBrush x:Key="V4NodeAccentPurpleBrush" Color="#9459C4" />
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="V4WindowBackgroundBrush" Color="#F3F3F3" />
+                    <SolidColorBrush x:Key="V4TitleBarBackgroundBrush" Color="#F3F3F3" />
+                    <SolidColorBrush x:Key="V4ContextIdentityBackgroundBrush" Color="#F3F3F3" />
+                    <SolidColorBrush x:Key="V4ContextActionsBackgroundBrush" Color="#F9F9F9" />
+                    <SolidColorBrush x:Key="V4NavigationBackgroundBrush" Color="#F3F3F3" />
+                    <SolidColorBrush x:Key="V4NavigationDividerBrush" Color="#D6DBE3" />
+                    <SolidColorBrush x:Key="V4NavigationSelectedBackgroundBrush" Color="#E7F1FB" />
+                    <SolidColorBrush x:Key="V4NavigationSelectedForegroundBrush" Color="#005FB8" />
+                    <SolidColorBrush x:Key="V4NavigationIndicatorBrush" Color="#005FB8" />
+                    <SolidColorBrush x:Key="V4NavigationForegroundBrush" Color="#1A1A1A" />
+                    <SolidColorBrush x:Key="V4NavigationSecondaryForegroundBrush" Color="#616975" />
+                    <SolidColorBrush x:Key="V4TextPrimaryBrush" Color="#1A1A1A" />
+                    <SolidColorBrush x:Key="V4TextSecondaryBrush" Color="#616975" />
+                    <SolidColorBrush x:Key="V4TextMutedBrush" Color="#5E5E5E" />
+                    <SolidColorBrush x:Key="V4TextStrongBrush" Color="#171A1F" />
+                    <SolidColorBrush x:Key="V4AccentBrush" Color="#0078D6" />
+                    <SolidColorBrush x:Key="V4AccentStrongBrush" Color="#086BC2" />
+                    <SolidColorBrush x:Key="V4AccentForegroundBrush" Color="#0063BA" />
+                    <SolidColorBrush x:Key="V4AccentSubtleBrush" Color="#E8F2FC" />
+                    <SolidColorBrush x:Key="V4DividerBrush" Color="#E5E5E5" />
+                    <SolidColorBrush x:Key="V4DividerStrongBrush" Color="#D1D1D1" />
+                    <SolidColorBrush x:Key="V4CardBackgroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="V4CardStrokeBrush" Color="#EBEBEB" />
+                    <SolidColorBrush x:Key="V4ControlBackgroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="V4ControlStrokeBrush" Color="#D1D1D1" />
+                    <SolidColorBrush x:Key="V4ControlHoverBackgroundBrush" Color="#F4F6F8" />
+                    <SolidColorBrush x:Key="V4ControlSelectedBackgroundBrush" Color="#E7F1FB" />
+                    <SolidColorBrush x:Key="V4ControlSelectedStrokeBrush" Color="#60A6E6" />
+                    <SolidColorBrush x:Key="V4ControlSelectedForegroundBrush" Color="#005FB8" />
+                    <SolidColorBrush x:Key="V4PreviewBackgroundBrush" Color="#F9FAFB" />
+                    <SolidColorBrush x:Key="V4PreviewBranchBrush" Color="#C7CFD6" />
+                    <SolidColorBrush x:Key="V4StarBrush" Color="#EB9C14" />
+                    <SolidColorBrush x:Key="V4StatusProgressBackgroundBrush" Color="#E0F0FF" />
+                    <SolidColorBrush x:Key="V4StatusDoneBackgroundBrush" Color="#E5F7E5" />
+                    <SolidColorBrush x:Key="V4StatusWarnBackgroundBrush" Color="#FFF2DE" />
+                    <SolidColorBrush x:Key="V4StatusTodoBackgroundBrush" Color="#F2EDFC" />
+                    <SolidColorBrush x:Key="V4CanvasGridLineBrush" Color="#EDEDED" />
+                    <SolidColorBrush x:Key="V4NodeBackgroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="V4NodeStrokeBrush" Color="#EBEBEB" />
+                    <SolidColorBrush x:Key="V4NodeAccentBlueBrush" Color="#086BC2" />
+                    <SolidColorBrush x:Key="V4NodeAccentGreenBrush" Color="#529E4D" />
+                    <SolidColorBrush x:Key="V4NodeAccentOrangeBrush" Color="#EB9426" />
+                    <SolidColorBrush x:Key="V4NodeAccentPurpleBrush" Color="#9459C4" />
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="V4WindowBackgroundBrush" Color="#202020" />
+                    <SolidColorBrush x:Key="V4TitleBarBackgroundBrush" Color="#202020" />
+                    <SolidColorBrush x:Key="V4ContextIdentityBackgroundBrush" Color="#202020" />
+                    <SolidColorBrush x:Key="V4ContextActionsBackgroundBrush" Color="#2B2B2B" />
+                    <SolidColorBrush x:Key="V4NavigationBackgroundBrush" Color="#202020" />
+                    <SolidColorBrush x:Key="V4NavigationDividerBrush" Color="#3A3A3A" />
+                    <SolidColorBrush x:Key="V4NavigationSelectedBackgroundBrush" Color="#2F4E7C" />
+                    <SolidColorBrush x:Key="V4NavigationSelectedForegroundBrush" Color="#75B6FF" />
+                    <SolidColorBrush x:Key="V4NavigationIndicatorBrush" Color="#75B6FF" />
+                    <SolidColorBrush x:Key="V4NavigationForegroundBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="V4NavigationSecondaryForegroundBrush" Color="#B0B0B0" />
+                    <SolidColorBrush x:Key="V4TextPrimaryBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="V4TextSecondaryBrush" Color="#B0B0B0" />
+                    <SolidColorBrush x:Key="V4TextMutedBrush" Color="#9E9E9E" />
+                    <SolidColorBrush x:Key="V4TextStrongBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="V4AccentBrush" Color="#4CC2FF" />
+                    <SolidColorBrush x:Key="V4AccentStrongBrush" Color="#75B6FF" />
+                    <SolidColorBrush x:Key="V4AccentForegroundBrush" Color="#75B6FF" />
+                    <SolidColorBrush x:Key="V4AccentSubtleBrush" Color="#243B53" />
+                    <SolidColorBrush x:Key="V4DividerBrush" Color="#303030" />
+                    <SolidColorBrush x:Key="V4DividerStrongBrush" Color="#454545" />
+                    <SolidColorBrush x:Key="V4CardBackgroundBrush" Color="#2B2B2B" />
+                    <SolidColorBrush x:Key="V4CardStrokeBrush" Color="#3A3A3A" />
+                    <SolidColorBrush x:Key="V4ControlBackgroundBrush" Color="#2B2B2B" />
+                    <SolidColorBrush x:Key="V4ControlStrokeBrush" Color="#454545" />
+                    <SolidColorBrush x:Key="V4ControlHoverBackgroundBrush" Color="#333333" />
+                    <SolidColorBrush x:Key="V4ControlSelectedBackgroundBrush" Color="#33465F" />
+                    <SolidColorBrush x:Key="V4ControlSelectedStrokeBrush" Color="#60A6E6" />
+                    <SolidColorBrush x:Key="V4ControlSelectedForegroundBrush" Color="#75B6FF" />
+                    <SolidColorBrush x:Key="V4PreviewBackgroundBrush" Color="#2E2E2E" />
+                    <SolidColorBrush x:Key="V4PreviewBranchBrush" Color="#5A5F66" />
+                    <SolidColorBrush x:Key="V4StarBrush" Color="#FFC02E" />
+                    <SolidColorBrush x:Key="V4StatusProgressBackgroundBrush" Color="#1F3A52" />
+                    <SolidColorBrush x:Key="V4StatusDoneBackgroundBrush" Color="#1F3A2E" />
+                    <SolidColorBrush x:Key="V4StatusWarnBackgroundBrush" Color="#4A3421" />
+                    <SolidColorBrush x:Key="V4StatusTodoBackgroundBrush" Color="#33283E" />
+                    <SolidColorBrush x:Key="V4CanvasGridLineBrush" Color="#3A3A3A" />
+                    <SolidColorBrush x:Key="V4NodeBackgroundBrush" Color="#2B2B2B" />
+                    <SolidColorBrush x:Key="V4NodeStrokeBrush" Color="#454545" />
+                    <SolidColorBrush x:Key="V4NodeAccentBlueBrush" Color="#4CC2FF" />
+                    <SolidColorBrush x:Key="V4NodeAccentGreenBrush" Color="#529E4D" />
+                    <SolidColorBrush x:Key="V4NodeAccentOrangeBrush" Color="#EB9426" />
+                    <SolidColorBrush x:Key="V4NodeAccentPurpleBrush" Color="#9459C4" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
             <SolidColorBrush x:Key="MindCanvasAccentBrush" Color="#0078D4" />
             <SolidColorBrush x:Key="MindCanvasCanvasGridBrush" Color="#14000000" />
 
-            <!-- MindCanvas V4 design tokens (Figma file: MindCanvas / V4, node 24:2). -->
-            <SolidColorBrush x:Key="V4WindowBackgroundBrush" Color="#F3F3F3" />
-            <SolidColorBrush x:Key="V4TitleBarBackgroundBrush" Color="#F3F3F3" />
-            <SolidColorBrush x:Key="V4ContextIdentityBackgroundBrush" Color="#F3F3F3" />
-            <SolidColorBrush x:Key="V4ContextActionsBackgroundBrush" Color="#F9F9F9" />
-            <SolidColorBrush x:Key="V4NavigationBackgroundBrush" Color="#F3F3F3" />
-            <SolidColorBrush x:Key="V4NavigationDividerBrush" Color="#D6DBE3" />
-            <SolidColorBrush x:Key="V4NavigationSelectedBackgroundBrush" Color="#E7F1FB" />
-            <SolidColorBrush x:Key="V4NavigationSelectedForegroundBrush" Color="#005FB8" />
-            <SolidColorBrush x:Key="V4NavigationIndicatorBrush" Color="#005FB8" />
-            <SolidColorBrush x:Key="V4NavigationForegroundBrush" Color="#1A1A1A" />
-            <SolidColorBrush x:Key="V4NavigationSecondaryForegroundBrush" Color="#616975" />
-            <SolidColorBrush x:Key="V4TextPrimaryBrush" Color="#1A1A1A" />
-            <SolidColorBrush x:Key="V4TextSecondaryBrush" Color="#616975" />
-            <SolidColorBrush x:Key="V4TextMutedBrush" Color="#5E5E5E" />
-            <SolidColorBrush x:Key="V4TextStrongBrush" Color="#171A1F" />
-            <SolidColorBrush x:Key="V4AccentBrush" Color="#0078D6" />
-            <SolidColorBrush x:Key="V4AccentStrongBrush" Color="#086BC2" />
-            <SolidColorBrush x:Key="V4AccentForegroundBrush" Color="#0063BA" />
-            <SolidColorBrush x:Key="V4AccentSubtleBrush" Color="#E8F2FC" />
-            <SolidColorBrush x:Key="V4DividerBrush" Color="#E5E5E5" />
-            <SolidColorBrush x:Key="V4DividerStrongBrush" Color="#D1D1D1" />
-            <SolidColorBrush x:Key="V4CardBackgroundBrush" Color="#FFFFFF" />
-            <SolidColorBrush x:Key="V4CardStrokeBrush" Color="#EBEBEB" />
-            <SolidColorBrush x:Key="V4ControlBackgroundBrush" Color="#FFFFFF" />
-            <SolidColorBrush x:Key="V4ControlStrokeBrush" Color="#D1D1D1" />
-            <SolidColorBrush x:Key="V4ControlHoverBackgroundBrush" Color="#F4F6F8" />
-            <SolidColorBrush x:Key="V4ControlSelectedBackgroundBrush" Color="#E7F1FB" />
-            <SolidColorBrush x:Key="V4ControlSelectedStrokeBrush" Color="#60A6E6" />
-            <SolidColorBrush x:Key="V4ControlSelectedForegroundBrush" Color="#005FB8" />
-            <SolidColorBrush x:Key="V4PreviewBackgroundBrush" Color="#F9FAFB" />
-            <SolidColorBrush x:Key="V4PreviewBranchBrush" Color="#C7CFD6" />
-            <SolidColorBrush x:Key="V4StarBrush" Color="#EB9C14" />
-            <SolidColorBrush x:Key="V4StatusProgressBackgroundBrush" Color="#E0F0FF" />
-            <SolidColorBrush x:Key="V4StatusDoneBackgroundBrush" Color="#E5F7E5" />
-            <SolidColorBrush x:Key="V4StatusWarnBackgroundBrush" Color="#FFF2DE" />
-            <SolidColorBrush x:Key="V4StatusTodoBackgroundBrush" Color="#F2EDFC" />
-            <SolidColorBrush x:Key="V4CanvasGridLineBrush" Color="#EDEDED" />
-            <SolidColorBrush x:Key="V4NodeBackgroundBrush" Color="#FFFFFF" />
-            <SolidColorBrush x:Key="V4NodeStrokeBrush" Color="#EBEBEB" />
-            <SolidColorBrush x:Key="V4NodeAccentBlueBrush" Color="#086BC2" />
-            <SolidColorBrush x:Key="V4NodeAccentGreenBrush" Color="#529E4D" />
-            <SolidColorBrush x:Key="V4NodeAccentOrangeBrush" Color="#EB9426" />
-            <SolidColorBrush x:Key="V4NodeAccentPurpleBrush" Color="#9459C4" />
-
             <Style x:Key="V4EditorCategoryButtonStyle" TargetType="ToggleButton">
                 <Setter Property="Background" Value="Transparent" />
-                <Setter Property="Foreground" Value="{StaticResource V4TextPrimaryBrush}" />
+                <Setter Property="Foreground" Value="{ThemeResource V4TextPrimaryBrush}" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="Padding" Value="10,0" />
                 <Setter Property="MinHeight" Value="40" />
@@ -77,7 +173,7 @@
                                     x:Name="ActiveIndicator"
                                     Height="2"
                                     Margin="6,0,6,0"
-                                    Background="{StaticResource V4AccentStrongBrush}"
+                                    Background="{ThemeResource V4AccentStrongBrush}"
                                     VerticalAlignment="Bottom"
                                     Visibility="Collapsed" />
                                 <VisualStateManager.VisualStateGroups>
@@ -86,25 +182,25 @@
                                         <VisualState x:Name="PointerOver" />
                                         <VisualState x:Name="Pressed">
                                             <VisualState.Setters>
-                                                <Setter Target="ContentPresenter.Foreground" Value="{StaticResource V4NavigationSelectedForegroundBrush}" />
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource V4NavigationSelectedForegroundBrush}" />
                                             </VisualState.Setters>
                                         </VisualState>
                                         <VisualState x:Name="Disabled" />
                                         <VisualState x:Name="Checked">
                                             <VisualState.Setters>
-                                                <Setter Target="ContentPresenter.Foreground" Value="{StaticResource V4NavigationSelectedForegroundBrush}" />
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource V4NavigationSelectedForegroundBrush}" />
                                                 <Setter Target="ActiveIndicator.Visibility" Value="Visible" />
                                             </VisualState.Setters>
                                         </VisualState>
                                         <VisualState x:Name="CheckedPointerOver">
                                             <VisualState.Setters>
-                                                <Setter Target="ContentPresenter.Foreground" Value="{StaticResource V4NavigationSelectedForegroundBrush}" />
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource V4NavigationSelectedForegroundBrush}" />
                                                 <Setter Target="ActiveIndicator.Visibility" Value="Visible" />
                                             </VisualState.Setters>
                                         </VisualState>
                                         <VisualState x:Name="CheckedPressed">
                                             <VisualState.Setters>
-                                                <Setter Target="ContentPresenter.Foreground" Value="{StaticResource V4NavigationSelectedForegroundBrush}" />
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource V4NavigationSelectedForegroundBrush}" />
                                                 <Setter Target="ActiveIndicator.Visibility" Value="Visible" />
                                             </VisualState.Setters>
                                         </VisualState>
@@ -118,9 +214,9 @@
             </Style>
 
             <Style x:Key="V4EditorViewButtonStyle" TargetType="ToggleButton">
-                <Setter Property="Background" Value="{StaticResource V4ControlBackgroundBrush}" />
-                <Setter Property="Foreground" Value="{StaticResource V4TextPrimaryBrush}" />
-                <Setter Property="BorderBrush" Value="{StaticResource V4ControlStrokeBrush}" />
+                <Setter Property="Background" Value="{ThemeResource V4ControlBackgroundBrush}" />
+                <Setter Property="Foreground" Value="{ThemeResource V4TextPrimaryBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource V4ControlStrokeBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
                 <Setter Property="Padding" Value="0" />
                 <Setter Property="MinWidth" Value="84" />
@@ -151,23 +247,23 @@
                                         <VisualState x:Name="Disabled" />
                                         <VisualState x:Name="Checked">
                                             <VisualState.Setters>
-                                                <Setter Target="RootBorder.Background" Value="{StaticResource V4ControlSelectedBackgroundBrush}" />
-                                                <Setter Target="RootBorder.BorderBrush" Value="{StaticResource V4ControlSelectedStrokeBrush}" />
-                                                <Setter Target="ContentPresenter.Foreground" Value="{StaticResource V4ControlSelectedForegroundBrush}" />
+                                                <Setter Target="RootBorder.Background" Value="{ThemeResource V4ControlSelectedBackgroundBrush}" />
+                                                <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource V4ControlSelectedStrokeBrush}" />
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource V4ControlSelectedForegroundBrush}" />
                                             </VisualState.Setters>
                                         </VisualState>
                                         <VisualState x:Name="CheckedPointerOver">
                                             <VisualState.Setters>
-                                                <Setter Target="RootBorder.Background" Value="{StaticResource V4ControlSelectedBackgroundBrush}" />
-                                                <Setter Target="RootBorder.BorderBrush" Value="{StaticResource V4ControlSelectedStrokeBrush}" />
-                                                <Setter Target="ContentPresenter.Foreground" Value="{StaticResource V4ControlSelectedForegroundBrush}" />
+                                                <Setter Target="RootBorder.Background" Value="{ThemeResource V4ControlSelectedBackgroundBrush}" />
+                                                <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource V4ControlSelectedStrokeBrush}" />
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource V4ControlSelectedForegroundBrush}" />
                                             </VisualState.Setters>
                                         </VisualState>
                                         <VisualState x:Name="CheckedPressed">
                                             <VisualState.Setters>
-                                                <Setter Target="RootBorder.Background" Value="{StaticResource V4ControlSelectedBackgroundBrush}" />
-                                                <Setter Target="RootBorder.BorderBrush" Value="{StaticResource V4ControlSelectedStrokeBrush}" />
-                                                <Setter Target="ContentPresenter.Foreground" Value="{StaticResource V4ControlSelectedForegroundBrush}" />
+                                                <Setter Target="RootBorder.Background" Value="{ThemeResource V4ControlSelectedBackgroundBrush}" />
+                                                <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource V4ControlSelectedStrokeBrush}" />
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource V4ControlSelectedForegroundBrush}" />
                                             </VisualState.Setters>
                                         </VisualState>
                                         <VisualState x:Name="CheckedDisabled" />

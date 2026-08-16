@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using MindCanvas.Theming;
 using MindCanvas.Core.Commands;
 using MindCanvas.Core.Documents;
 using MindCanvas.Pages;
@@ -18,6 +19,7 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        ThemeService.Apply(Content as FrameworkElement ?? throw new InvalidOperationException("Window content is not a FrameworkElement."));
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
         Title = "MindCanvas";

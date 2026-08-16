@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using MindCanvas.Theming;
 using MindCanvas.Storage;
 using MindCanvas.Update;
 
@@ -19,6 +20,7 @@ public partial class App : Application
     public App()
     {
         StartupDiagnostics.Write("App constructor entered.");
+        ThemeService.Initialize();
         UnhandledException += App_UnhandledException;
         try
         {

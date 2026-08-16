@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
+using MindCanvas.Theming;
 using MindCanvas.Core.Documents;
 using MindCanvas.Layout;
 
@@ -325,14 +326,7 @@ public sealed partial class EditorPage : Page
 
     private static Brush ResourceBrush(string key, Windows.UI.Color fallback)
     {
-        try
-        {
-            if (Application.Current.Resources[key] is Brush brush) return brush;
-        }
-        catch
-        {
-        }
-        return new SolidColorBrush(fallback);
+        return ThemeService.GetBrush(key, fallback);
     }
 
     private static string T(string en, string zh, string ja)

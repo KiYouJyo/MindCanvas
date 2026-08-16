@@ -12,7 +12,7 @@
                 VerticalAlignment="Top"
                 CornerRadius="8"
                 Padding="12,14"
-                Background="{StaticResource V4ContextActionsBackgroundBrush}">
+                Background="{ThemeResource V4ContextActionsBackgroundBrush}">
             <ListView x:Name="SettingsCategories"
                       SelectionMode="Single"
                       SelectedIndex="0"
@@ -25,8 +25,8 @@
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                         <Setter Property="Padding" Value="12,0"/>
                         <Setter Property="Margin" Value="0,0,0,8"/>
-                        <Setter Property="Background" Value="{StaticResource V4ControlHoverBackgroundBrush}"/>
-                        <Setter Property="Foreground" Value="{StaticResource V4TextStrongBrush}"/>
+                        <Setter Property="Background" Value="{ThemeResource V4ControlHoverBackgroundBrush}"/>
+                        <Setter Property="Foreground" Value="{ThemeResource V4TextStrongBrush}"/>
                         <Setter Property="BorderThickness" Value="0"/>
                     </Style>
                 </ListView.Resources>
@@ -38,7 +38,7 @@
                 <TextBlock x:Name="SettingsSectionTitle"
                            FontSize="22"
                            FontWeight="Bold"
-                           Foreground="{StaticResource V4TextStrongBrush}"
+                           Foreground="{ThemeResource V4TextStrongBrush}"
                            Margin="0,-4,0,2"/>
                 <StackPanel x:Name="SettingsCards" Spacing="12"/>
             </StackPanel>
