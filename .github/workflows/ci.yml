@@ -43,7 +43,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Build unsigned x64 MSIX bundle
+      - name: Build and validate unsigned x64 MSIX bundle
         shell: pwsh
         run: |
           $out=Join-Path $env:RUNNER_TEMP 'AppPackages'
@@ -51,6 +51,31 @@ jobs:
           dotnet build src/MindCanvas.App/MindCanvas.App.csproj -c Release -p:Platform=x64 -r win-x64 -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false -p:AppxBundle=Always -p:AppxBundlePlatforms=x64 -p:UapAppxPackageBuildMode=SideloadOnly -p:AppxPackageDir="$out\" --no-restore
           $bundle=Get-ChildItem $out -Recurse -Filter '*.msixbundle'|Select-Object -First 1
           if(-not $bundle){throw 'MSIX bundle was not produced.'}
+
+          # Validate the actual payload, not only source files. This prevents a manifest from
+          # referencing generated assets that were created during build but omitted from MSIX.
+          $inspect=Join-Path $env:RUNNER_TEMP 'msix-inspect'
+          $bundleZip=Join-Path $env:RUNNER_TEMP 'bundle.zip'
+          Copy-Item $bundle.FullName $bundleZip -Force
+          Expand-Archive -LiteralPath $bundleZip -DestinationPath (Join-Path $inspect 'bundle') -Force
+          $inner=Get-ChildItem (Join-Path $inspect 'bundle') -Recurse -Filter '*.msix'|Select-Object -First 1
+          if(-not $inner){throw 'Inner MSIX was not found in bundle.'}
+          $innerZip=Join-Path $env:RUNNER_TEMP 'package.zip'
+          Copy-Item $inner.FullName $innerZip -Force
+          $packageRoot=Join-Path $inspect 'package'
+          Expand-Archive -LiteralPath $innerZip -DestinationPath $packageRoot -Force
+          $required=@(
+            'Assets\Generated\StoreLogo.png',
+            'Assets\Generated\Square44x44Logo.png',
+            'Assets\Generated\Square150x150Logo.png',
+            'Assets\Generated\Wide310x150Logo.png',
+            'Assets\Generated\SplashScreen.png'
+          )
+          foreach($relative in $required){
+            $asset=Join-Path $packageRoot $relative
+            if(-not(Test-Path -LiteralPath $asset -PathType Leaf)){throw "MSIX payload is missing manifest asset: $relative"}
+          }
+
           $renamed=Join-Path $env:RUNNER_TEMP 'MindCanvas_0.1.0.0_x64.msixbundle';Copy-Item $bundle.FullName $renamed -Force
           "BUNDLE_PATH=$renamed"|Out-File $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Sign and create one-click acceptance ZIP
