@@ -1,6 +1,6 @@
 # MindCanvas
 
-[English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja-JP.md)
+[简体中文](README.md) · [English](README.en-US.md) · [日本語](README.ja-JP.md)
 
 > **预览版** — v0.1.0 为首个公开工程预览版；v0.1.5 将重点完成 V4 UI 的高精度实现。
 
