@@ -22,7 +22,23 @@
     <ProjectReference Include="../MindCanvas.Storage/MindCanvas.Storage.csproj" />
     <ProjectReference Include="../MindCanvas.Update/MindCanvas.Update.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- These files are generated before build, but they must be declared at project evaluation time
+         so MSIX packaging includes every path referenced by Package.appxmanifest. -->
+    <Content Include="Assets\Generated\StoreLogo.png" />
+    <Content Include="Assets\Generated\Square44x44Logo.png" />
+    <Content Include="Assets\Generated\Square150x150Logo.png" />
+    <Content Include="Assets\Generated\Wide310x150Logo.png" />
+    <Content Include="Assets\Generated\SplashScreen.png" />
+  </ItemGroup>
   <Target Name="GeneratePlaceholderAssets" BeforeTargets="PrepareForBuild">
     <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\..\eng\Generate-PlaceholderAssets.ps1&quot; -OutputDirectory &quot;$(MSBuildProjectDirectory)\Assets\Generated&quot;" />
+  </Target>
+  <Target Name="VerifyGeneratedPackageAssets" AfterTargets="GeneratePlaceholderAssets" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Generated\StoreLogo.png')" Text="Missing generated package asset: StoreLogo.png" />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Generated\Square44x44Logo.png')" Text="Missing generated package asset: Square44x44Logo.png" />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Generated\Square150x150Logo.png')" Text="Missing generated package asset: Square150x150Logo.png" />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Generated\Wide310x150Logo.png')" Text="Missing generated package asset: Wide310x150Logo.png" />
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)\Assets\Generated\SplashScreen.png')" Text="Missing generated package asset: SplashScreen.png" />
   </Target>
 </Project>
