@@ -4,6 +4,20 @@ All notable changes to MindCanvas are documented here. Product releases follow S
 
 ## [Unreleased]
 
+### Added
+- Started v0.2.0 functional editor integration on top of the Figma V4 UI baseline.
+- Selected-node synchronization between map, narrow outline, and full outline views.
+- Functional root-topic, subtopic, sibling-topic, delete, collapse, expand, rename, undo, and redo actions.
+- Keyboard editing shortcuts: Enter for sibling topics, Tab/Insert for subtopics, Delete for deletion, and F2 for rename.
+- Undoable delete, move, and collapse commands in the document core.
+- Visible-tree traversal for collapsed branches and tests covering editor mutation primitives.
+
+### Changed
+- Map / Outline / Split now behave as distinct functional view modes rather than presentation-only states.
+- Editor toolbar enablement now follows the selected node and undo/redo history.
+- Per-document selected-node state is retained when switching tabs or editor views.
+- Development package version advanced to 0.2.0.0.
+
 ## [0.1.5] - 2026-08-16
 
 ### Added
