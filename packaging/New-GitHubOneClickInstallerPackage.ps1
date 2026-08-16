@@ -41,18 +41,26 @@ try{
 }catch{Write-Host "$($msg.fail) $($_.Exception.Message)" -ForegroundColor Red;Read-Host 'Press Enter to close';exit 1}
 '@
 Set-Content (Join-Path $root 'Install-MindCanvas.ps1') $installer -Encoding UTF8
-Set-Content (Join-Path $root 'Install-MindCanvas.cmd') '@echo off
+$cmdAuto = @'
+@echo off
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Install-MindCanvas.ps1" -Language auto
-' -Encoding ASCII
-Set-Content (Join-Path $root 'Install-MindCanvas.zh-CN.cmd') '@echo off
+'@
+$cmdZh = @'
+@echo off
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Install-MindCanvas.ps1" -Language zh-CN
-' -Encoding ASCII
-Set-Content (Join-Path $root 'Install-MindCanvas.ja-JP.cmd') '@echo off
+'@
+$cmdJa = @'
+@echo off
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Install-MindCanvas.ps1" -Language ja-JP
-' -Encoding ASCII
-Set-Content (Join-Path $root 'Uninstall-MindCanvas.cmd') '@echo off
+'@
+$cmdUninstall = @'
+@echo off
 powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Get-AppxPackage KiYouJyo.MindCanvas | Remove-AppxPackage"
-' -Encoding ASCII
+'@
+Set-Content (Join-Path $root 'Install-MindCanvas.cmd') $cmdAuto -Encoding ASCII
+Set-Content (Join-Path $root 'Install-MindCanvas.zh-CN.cmd') $cmdZh -Encoding ASCII
+Set-Content (Join-Path $root 'Install-MindCanvas.ja-JP.cmd') $cmdJa -Encoding ASCII
+Set-Content (Join-Path $root 'Uninstall-MindCanvas.cmd') $cmdUninstall -Encoding ASCII
 $hashFiles=@($bundleName,'MindCanvas.cer')
 $hashLines=foreach($name in $hashFiles){$file=Join-Path $root $name;"{0}  {1}" -f (Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant(),$name}
 Set-Content (Join-Path $root 'SHA256SUMS.txt') $hashLines -Encoding ASCII
