@@ -2,18 +2,20 @@
 
 [简体中文](README.md) · [English](README.en-US.md) · [日本語](README.ja-JP.md)
 
-> **预览版** — v0.1.0 为首个公开工程预览版；v0.1.5 将重点完成 V4 UI 的高精度实现。
+> **预览版** — v0.1.0 为首个公开工程预览版；v0.1.5 已按 Figma V4 完成高精度 WinUI 3 界面实现。
 
 MindCanvas 是一款基于 **WinUI 3** 的 Windows 原生思维导图与大纲软件。导图、大纲与分屏共享同一棵文档树（SSOT），结构、主题与内容模板采用分离式架构。
 
-## v0.1.0 Preview
+## v0.1.5 Preview
 
 - WinUI 3 / Windows App SDK 应用框架与全局文档标签
-- 首页 / 文档库 / 模板 / 设置导航
+- 首页 / 文档库 / 模板 / 设置导航，以及导图 / 大纲 / 分屏编辑视图
+- 按 Figma V4 对齐的全局 Shell、页面布局、尺寸、间距、圆角、字体与控件状态
+- 七个互不重复的设置分类：常规、语言与区域、外观、编辑、文件、导出、关于
 - 简体中文、English、日本語三语资源
 - `.mcanvas` 文档模型与 JSON 持久化
 - 新建 / 打开 / 保存 / 另存为、自动保存基础、撤销 / 重做基础
-- 右向逻辑图基础布局，以及导图 / 大纲初始渲染
+- 右向逻辑图布局，以及导图 / 大纲初始渲染
 - 区分 Microsoft Store 与侧载来源的应用内更新基础设施
 - Per-Monitor V2 高 DPI 支持
 - Windows CI、签名 MSIXBundle 与 x64 / ARM64 一键安装 Release

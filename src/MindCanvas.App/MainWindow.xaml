@@ -7,155 +7,194 @@
         <MicaBackdrop Kind="Base" />
     </Window.SystemBackdrop>
 
-    <Grid Background="Transparent">
+    <Grid Background="{StaticResource V4WindowBackgroundBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="48"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="48"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="48" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="48" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid x:Name="AppTitleBar" Grid.Row="0" Background="Transparent">
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Background="{StaticResource V4TitleBarBackgroundBrush}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="150" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0,0,0" Spacing="10">
-                <Border Width="20" Height="20" CornerRadius="5" Background="#0078D4"/>
-                <TextBlock Text="MindCanvas" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0" Spacing="10">
+                <Border Width="20" Height="20" CornerRadius="5" Background="{StaticResource MindCanvasAccentBrush}" />
+                <TextBlock Text="MindCanvas" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource V4TextPrimaryBrush}" VerticalAlignment="Center" />
             </StackPanel>
 
             <controls:TabView
                 x:Name="DocumentTabs"
                 Grid.Column="1"
-                Height="40"
-                Margin="23,7,150,0"
+                Height="32"
+                Margin="23,8,150,0"
                 VerticalAlignment="Top"
                 Background="Transparent"
                 AddTabButtonClick="DocumentTabs_AddTabButtonClick"
                 TabCloseRequested="DocumentTabs_TabCloseRequested"
-                SelectionChanged="DocumentTabs_SelectionChanged"/>
+                SelectionChanged="DocumentTabs_SelectionChanged" />
         </Grid>
 
-        <Border Grid.Row="1"
-                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
-                BorderThickness="0,1,0,1"
-                Background="{ThemeResource LayerFillColorDefaultBrush}">
-            <Grid Padding="173,0,51,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="18">
-                    <TextBlock x:Name="ContextTitle" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    <TextBlock x:Name="ContextSubtitle"
-                               FontSize="12"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                               VerticalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel x:Name="EditorViewSelector"
-                            Grid.Column="1"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                            Spacing="4"
-                            Visibility="Collapsed">
-                    <ToggleButton x:Uid="ViewMap" MinWidth="80" Height="32"/>
-                    <ToggleButton x:Uid="ViewOutline" MinWidth="80" Height="32"/>
-                    <ToggleButton x:Uid="ViewSplit" MinWidth="80" Height="32" IsChecked="True"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <Border Grid.Row="2"
-                Background="{ThemeResource LayerFillColorAltBrush}"
-                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+        <Grid Grid.Row="1">
+            <Border
+                x:Name="ContextIdentity"
+                Background="{StaticResource V4ContextIdentityBackgroundBrush}"
+                BorderBrush="{StaticResource V4DividerBrush}"
                 BorderThickness="0,0,0,1">
-            <Grid Padding="173,0,51,0">
-                <StackPanel x:Name="HomeActions"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                            Spacing="8">
-                    <Button x:Name="HomeNewMapButton" Height="32" MinWidth="126" Click="NewDocument_Click"/>
-                    <Button x:Name="HomeFromTemplateButton" Height="32" MinWidth="142" Click="FromTemplate_Click"/>
-                    <Button x:Name="HomeImportButton" Height="32" MinWidth="90" Click="OpenDocument_Click"/>
-                </StackPanel>
-
-                <Grid x:Name="DocumentsActions" Visibility="Collapsed">
+                <Grid Padding="174,0,51,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox x:Name="DocumentsSearchBox"
-                             Width="380"
-                             Height="32"
-                             VerticalAlignment="Center"
-                             HorizontalAlignment="Left"/>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                        <ToggleButton x:Name="DocumentsListButton" Width="76" Height="32" IsChecked="True"/>
-                        <ToggleButton x:Name="DocumentsGridButton" Width="76" Height="32"/>
-                        <Button x:Name="DocumentsNewFolderButton" MinWidth="126" Height="32"/>
-                        <Button x:Name="DocumentsNewMapButton" MinWidth="138" Height="32" Click="NewDocument_Click"/>
-                    </StackPanel>
-                </Grid>
-
-                <Grid x:Name="TemplatesActions" Visibility="Collapsed">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                        <ToggleButton x:Name="TemplatesRecommendedButton" Width="96" Height="32" IsChecked="True"/>
-                        <ToggleButton x:Name="TemplatesAllButton" Width="96" Height="32"/>
-                        <ToggleButton x:Name="TemplatesFavoritesButton" Width="96" Height="32"/>
+                        <TextBlock x:Name="ContextTitle" FontSize="16" FontWeight="Medium" Foreground="{StaticResource V4TextPrimaryBrush}" VerticalAlignment="Center" />
+                        <TextBlock x:Name="ContextSubtitle" FontSize="12" Foreground="{StaticResource V4TextMutedBrush}" VerticalAlignment="Center" />
                     </StackPanel>
-                    <TextBox x:Name="TemplatesSearchBox"
-                             Grid.Column="1"
-                             Width="404"
-                             Height="32"
-                             VerticalAlignment="Center"/>
+                    <StackPanel
+                        x:Name="EditorViewSelector"
+                        Grid.Column="1"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        Spacing="4"
+                        Visibility="Collapsed">
+                        <ToggleButton x:Name="ViewMap" Style="{StaticResource V4EditorViewButtonStyle}" IsChecked="False" Click="ViewMode_Click" Tag="map" />
+                        <ToggleButton x:Name="ViewOutline" Style="{StaticResource V4EditorViewButtonStyle}" IsChecked="False" Click="ViewMode_Click" Tag="outline" />
+                        <ToggleButton x:Name="ViewSplit" Style="{StaticResource V4EditorViewButtonStyle}" IsChecked="True" Click="ViewMode_Click" Tag="split" />
+                    </StackPanel>
                 </Grid>
+            </Border>
 
-                <Grid x:Name="SettingsActions" Visibility="Collapsed">
+            <Border
+                x:Name="EditorCategoryBar"
+                Background="{StaticResource V4ContextIdentityBackgroundBrush}"
+                BorderBrush="{StaticResource V4DividerBrush}"
+                BorderThickness="0,0,0,1"
+                Visibility="Collapsed">
+                <Grid Padding="174,0,51,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="SettingsSearchBox"
-                             Width="420"
-                             Height="32"
-                             VerticalAlignment="Center"
-                             HorizontalAlignment="Left"/>
-                    <Button x:Name="SettingsResetButton"
-                            Grid.Column="1"
-                            Width="144"
-                            Height="32"
-                            VerticalAlignment="Center"
-                            Click="SettingsResetButton_Click"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="0">
+                        <ToggleButton x:Name="EditorCategoryStart" Style="{StaticResource V4EditorCategoryButtonStyle}" IsChecked="True" Click="EditorCategory_Click" Tag="start" />
+                        <ToggleButton x:Name="EditorCategoryInsert" Style="{StaticResource V4EditorCategoryButtonStyle}" Click="EditorCategory_Click" Tag="insert" />
+                        <ToggleButton x:Name="EditorCategoryStyle" Style="{StaticResource V4EditorCategoryButtonStyle}" Click="EditorCategory_Click" Tag="style" />
+                        <ToggleButton x:Name="EditorCategoryView" Style="{StaticResource V4EditorCategoryButtonStyle}" Click="EditorCategory_Click" Tag="view" />
+                        <ToggleButton x:Name="EditorCategoryTools" Style="{StaticResource V4EditorCategoryButtonStyle}" Click="EditorCategory_Click" Tag="tools" />
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Column="1"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        Spacing="4">
+                        <ToggleButton x:Name="EditorViewMap" Style="{StaticResource V4EditorViewButtonStyle}" IsChecked="False" Click="ViewMode_Click" Tag="map" />
+                        <ToggleButton x:Name="EditorViewOutline" Style="{StaticResource V4EditorViewButtonStyle}" IsChecked="False" Click="ViewMode_Click" Tag="outline" />
+                        <ToggleButton x:Name="EditorViewSplit" Style="{StaticResource V4EditorViewButtonStyle}" IsChecked="True" Click="ViewMode_Click" Tag="split" />
+                    </StackPanel>
                 </Grid>
+            </Border>
+        </Grid>
 
-                <CommandBar x:Name="EditorActions"
-                            HorizontalAlignment="Right"
-                            DefaultLabelPosition="Right"
-                            IsOpen="False"
-                            Background="Transparent"
-                            Visibility="Collapsed">
-                    <AppBarButton x:Uid="CommandNew" Icon="Add" Click="NewDocument_Click"/>
-                    <AppBarButton x:Uid="CommandOpen" Icon="OpenFile" Click="OpenDocument_Click"/>
-                    <AppBarButton x:Uid="CommandSave" Icon="Save" Click="SaveDocument_Click"/>
-                    <AppBarButton x:Uid="CommandSaveAs" Icon="Save" Click="SaveAsDocument_Click"/>
-                    <AppBarSeparator/>
-                    <AppBarButton x:Uid="CommandAddChild" Icon="AddFriend" Click="AddChild_Click"/>
-                    <AppBarButton x:Uid="CommandUndo" Icon="Undo" Click="Undo_Click"/>
-                    <AppBarButton x:Uid="CommandRedo" Icon="Redo" Click="Redo_Click"/>
-                </CommandBar>
-            </Grid>
-        </Border>
+        <Grid Grid.Row="2">
+            <Border
+                x:Name="ContextActions"
+                Background="{StaticResource V4ContextActionsBackgroundBrush}"
+                BorderBrush="{StaticResource V4DividerBrush}"
+                BorderThickness="0,0,0,1">
+                <Grid Padding="174,0,51,0">
+                    <StackPanel x:Name="HomeActions" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                        <Button x:Name="HomeNewMapButton" Height="32" MinWidth="126" Background="{StaticResource V4ControlSelectedBackgroundBrush}" BorderBrush="{StaticResource V4ControlSelectedStrokeBrush}" Foreground="{StaticResource V4ControlSelectedForegroundBrush}" Click="NewDocument_Click" />
+                        <Button x:Name="HomeFromTemplateButton" Height="32" MinWidth="142" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" Click="FromTemplate_Click" />
+                        <Button x:Name="HomeImportButton" Height="32" MinWidth="90" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" Click="OpenDocument_Click" />
+                    </StackPanel>
 
-        <NavigationView
+                    <Grid x:Name="DocumentsActions" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="DocumentsSearchBox" Width="380" Height="32" VerticalAlignment="Center" HorizontalAlignment="Left" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                            <ToggleButton x:Name="DocumentsListButton" Width="76" Height="32" IsChecked="True" Background="{StaticResource V4ControlSelectedBackgroundBrush}" BorderBrush="{StaticResource V4ControlSelectedStrokeBrush}" Foreground="{StaticResource V4ControlSelectedForegroundBrush}" />
+                            <ToggleButton x:Name="DocumentsGridButton" Width="76" Height="32" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" />
+                            <Button x:Name="DocumentsNewFolderButton" MinWidth="126" Height="32" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" />
+                            <Button x:Name="DocumentsNewMapButton" MinWidth="138" Height="32" Background="{StaticResource V4ControlSelectedBackgroundBrush}" BorderBrush="{StaticResource V4ControlSelectedStrokeBrush}" Foreground="{StaticResource V4ControlSelectedForegroundBrush}" Click="NewDocument_Click" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid x:Name="TemplatesActions" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                            <ToggleButton x:Name="TemplatesRecommendedButton" Width="96" Height="32" IsChecked="True" Background="{StaticResource V4ControlSelectedBackgroundBrush}" BorderBrush="{StaticResource V4ControlSelectedStrokeBrush}" Foreground="{StaticResource V4ControlSelectedForegroundBrush}" />
+                            <ToggleButton x:Name="TemplatesAllButton" Width="96" Height="32" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" />
+                            <ToggleButton x:Name="TemplatesFavoritesButton" Width="96" Height="32" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" />
+                        </StackPanel>
+                        <TextBox x:Name="TemplatesSearchBox" Grid.Column="1" Width="404" Height="32" VerticalAlignment="Center" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4CardStrokeBrush}" />
+                    </Grid>
+
+                    <Grid x:Name="SettingsActions" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="SettingsSearchBox" Width="420" Height="38" VerticalAlignment="Center" HorizontalAlignment="Left" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4DividerStrongBrush}" />
+                        <Button x:Name="SettingsResetButton" Grid.Column="1" Width="144" Height="32" VerticalAlignment="Center" Background="{StaticResource V4ControlBackgroundBrush}" BorderBrush="{StaticResource V4ControlStrokeBrush}" Foreground="{StaticResource V4TextPrimaryBrush}" Click="SettingsResetButton_Click" />
+                    </Grid>
+
+                    <controls:CommandBar
+                        x:Name="EditorActions"
+                        HorizontalAlignment="Right"
+                        DefaultLabelPosition="Right"
+                        Background="Transparent"
+                        Visibility="Collapsed">
+                        <controls:AppBarButton x:Uid="CommandNew" Icon="Add" Click="NewDocument_Click" />
+                        <controls:AppBarButton x:Uid="CommandOpen" Icon="OpenFile" Click="OpenDocument_Click" />
+                        <controls:AppBarButton x:Uid="CommandSave" Icon="Save" Click="SaveDocument_Click" />
+                        <controls:AppBarButton x:Uid="CommandSaveAs" Icon="Save" Click="SaveAsDocument_Click" />
+                        <controls:AppBarSeparator />
+                        <controls:AppBarButton x:Uid="CommandAddChild" Icon="AddFriend" Click="AddChild_Click" />
+                        <controls:AppBarButton x:Uid="CommandUndo" Icon="Undo" Click="Undo_Click" />
+                        <controls:AppBarButton x:Uid="CommandRedo" Icon="Redo" Click="Redo_Click" />
+                    </controls:CommandBar>
+                </Grid>
+            </Border>
+
+            <Border
+                x:Name="EditorCommandBar"
+                Background="{StaticResource V4ContextActionsBackgroundBrush}"
+                BorderBrush="{StaticResource V4DividerBrush}"
+                BorderThickness="0,0,0,1"
+                Visibility="Collapsed">
+                <Grid Padding="174,0,51,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="6">
+                        <Button x:Name="EditorNewTopicButton" Height="40" MinWidth="82" Click="EditorNewTopic_Click" />
+                        <Button x:Name="EditorSubtopicButton" Height="40" MinWidth="82" Click="EditorSubtopic_Click" />
+                        <Button x:Name="EditorSiblingButton" Height="40" MinWidth="82" Click="EditorSibling_Click" />
+                        <Button x:Name="EditorDeleteButton" Height="40" MinWidth="82" Click="EditorDelete_Click" />
+                        <Button x:Name="EditorCollapseButton" Height="40" MinWidth="82" Click="EditorCollapse_Click" />
+                        <Button x:Name="EditorExpandButton" Height="40" MinWidth="82" Click="EditorExpand_Click" />
+                        <Button x:Name="EditorUndoButton" Height="40" MinWidth="82" Click="Undo_Click" />
+                        <Button x:Name="EditorRedoButton" Height="40" MinWidth="82" Click="Redo_Click" />
+                    </StackPanel>
+                    <Button x:Name="EditorFormatToggleButton" Grid.Column="1" Height="40" MinWidth="90" Click="EditorFormatToggle_Click" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <controls:NavigationView
             x:Name="RootNavigation"
             Grid.Row="3"
-            Background="Transparent"
+            Background="{StaticResource V4NavigationBackgroundBrush}"
             PaneDisplayMode="Left"
             OpenPaneLength="150"
             CompactPaneLength="48"
@@ -164,23 +203,23 @@
             IsSettingsVisible="False"
             AlwaysShowHeader="False"
             SelectionChanged="RootNavigation_SelectionChanged">
-            <NavigationView.MenuItems>
-                <NavigationViewItem x:Uid="NavHome" Tag="home">
-                    <NavigationViewItem.Icon><FontIcon Glyph="&#xE80F;"/></NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavDocuments" Tag="documents">
-                    <NavigationViewItem.Icon><FontIcon Glyph="&#xE8A5;"/></NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem x:Uid="NavTemplates" Tag="templates">
-                    <NavigationViewItem.Icon><FontIcon Glyph="&#xECA5;"/></NavigationViewItem.Icon>
-                </NavigationViewItem>
-            </NavigationView.MenuItems>
-            <NavigationView.FooterMenuItems>
-                <NavigationViewItem x:Uid="NavSettings" Tag="settings">
-                    <NavigationViewItem.Icon><FontIcon Glyph="&#xE713;"/></NavigationViewItem.Icon>
-                </NavigationViewItem>
-            </NavigationView.FooterMenuItems>
-            <Frame x:Name="RootFrame"/>
-        </NavigationView>
+            <controls:NavigationView.MenuItems>
+                <controls:NavigationViewItem x:Uid="NavHome" Tag="home">
+                    <controls:NavigationViewItem.Icon><controls:FontIcon Glyph="&#xE80F;" /></controls:NavigationViewItem.Icon>
+                </controls:NavigationViewItem>
+                <controls:NavigationViewItem x:Uid="NavDocuments" Tag="documents">
+                    <controls:NavigationViewItem.Icon><controls:FontIcon Glyph="&#xE8A5;" /></controls:NavigationViewItem.Icon>
+                </controls:NavigationViewItem>
+                <controls:NavigationViewItem x:Uid="NavTemplates" Tag="templates">
+                    <controls:NavigationViewItem.Icon><controls:FontIcon Glyph="&#xECA5;" /></controls:NavigationViewItem.Icon>
+                </controls:NavigationViewItem>
+            </controls:NavigationView.MenuItems>
+            <controls:NavigationView.FooterMenuItems>
+                <controls:NavigationViewItem x:Uid="NavSettings" Tag="settings">
+                    <controls:NavigationViewItem.Icon><controls:FontIcon Glyph="&#xE713;" /></controls:NavigationViewItem.Icon>
+                </controls:NavigationViewItem>
+            </controls:NavigationView.FooterMenuItems>
+            <Frame x:Name="RootFrame" />
+        </controls:NavigationView>
     </Grid>
 </Window>

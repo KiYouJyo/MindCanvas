@@ -183,13 +183,14 @@ public sealed partial class SettingsPage : Page
         {
             Text = title,
             FontSize = 15,
-            FontWeight = FontWeights.SemiBold
+            FontWeight = FontWeights.Bold,
+            Foreground = ResourceBrush("V4TextStrongBrush", Color.FromArgb(255, 23, 26, 31))
         });
         text.Children.Add(new TextBlock
         {
             Text = description,
             FontSize = 12,
-            Foreground = ResourceBrush("TextFillColorSecondaryBrush", Color.FromArgb(255, 97, 102, 110)),
+            Foreground = ResourceBrush("V4TextSecondaryBrush", Color.FromArgb(255, 97, 105, 117)),
             TextWrapping = TextWrapping.Wrap,
             MaxWidth = 610
         });
@@ -204,8 +205,8 @@ public sealed partial class SettingsPage : Page
             Height = 82,
             CornerRadius = new CornerRadius(8),
             Padding = new Thickness(17, 10, 14, 10),
-            Background = ResourceBrush("CardBackgroundFillColorDefaultBrush", Color.FromArgb(255, 255, 255, 255)),
-            BorderBrush = ResourceBrush("CardStrokeColorDefaultBrush", Color.FromArgb(255, 235, 235, 235)),
+            Background = ResourceBrush("V4CardBackgroundBrush", Color.FromArgb(255, 255, 255, 255)),
+            BorderBrush = ResourceBrush("V4CardStrokeBrush", Color.FromArgb(255, 235, 235, 235)),
             BorderThickness = new Thickness(1),
             Child = grid
         };
@@ -233,7 +234,7 @@ public sealed partial class SettingsPage : Page
         {
             Text = $"{T("Version", "版本", "バージョン")} {App.UpdateManager.CurrentVersion} · WinUI 3 · {App.UpdateManager.Channel}",
             FontSize = 12,
-            Foreground = ResourceBrush("TextFillColorSecondaryBrush", Color.FromArgb(255, 97, 102, 110))
+            Foreground = ResourceBrush("V4TextSecondaryBrush", Color.FromArgb(255, 97, 105, 117))
         };
         info.Children.Add(_updateStatus);
         Grid.SetColumn(info, 1);
@@ -254,8 +255,8 @@ public sealed partial class SettingsPage : Page
             Height = 142,
             CornerRadius = new CornerRadius(8),
             Padding = new Thickness(20),
-            Background = ResourceBrush("CardBackgroundFillColorDefaultBrush", Color.FromArgb(255, 255, 255, 255)),
-            BorderBrush = ResourceBrush("CardStrokeColorDefaultBrush", Color.FromArgb(255, 235, 235, 235)),
+            Background = ResourceBrush("V4CardBackgroundBrush", Color.FromArgb(255, 255, 255, 255)),
+            BorderBrush = ResourceBrush("V4CardStrokeBrush", Color.FromArgb(255, 235, 235, 235)),
             BorderThickness = new Thickness(1),
             Child = heroGrid
         });

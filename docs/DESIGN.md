@@ -18,6 +18,6 @@ Only **V4** is used for implementation. Do not use V2 or V3 as a visual referenc
 - Maintain Simplified Chinese / English / Japanese parity.
 - Maintain `PerMonitorV2` DPI awareness and validate at 150% / 200% scaling.
 
-## v0.1.5 handoff
+## v0.1.5 implementation
 
-The v0.1.5 UI pass should read the Figma file directly using the configured Figma access token and converge layout, spacing, typography hierarchy, Fluent colors, Mica/layering, and control sizing against V4. Do not store the Figma token in source, logs, commits, artifacts, or releases.
+The v0.1.5 UI pass reads the Figma file directly through the configured Figma access token and converges layout, spacing, typography hierarchy, Fluent colors, Mica/layering, and control sizing against V4. The Figma token must not be stored in source, logs, commits, artifacts, or releases.

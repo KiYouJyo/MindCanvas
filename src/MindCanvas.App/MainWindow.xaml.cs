@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using MindCanvas.Core.Commands;
 using MindCanvas.Core.Documents;
 using MindCanvas.Pages;
@@ -12,6 +13,7 @@ public sealed partial class MainWindow : Window
 {
     private readonly Dictionary<TabViewItem, DocumentSession> _sessions = [];
     private readonly DispatcherTimer _autosaveTimer = new() { Interval = TimeSpan.FromSeconds(60) };
+    private string _editorMode = "split";
 
     public MainWindow()
     {
@@ -22,6 +24,7 @@ public sealed partial class MainWindow : Window
 
         RootNavigation.PaneTitle = LocalText("Navigation", "导航", "ナビゲーション");
         SetActionTexts();
+        SetEditorTexts();
 
         _autosaveTimer.Tick += AutosaveTimer_Tick;
         _autosaveTimer.Start();
@@ -65,6 +68,32 @@ public sealed partial class MainWindow : Window
         SettingsResetButton.Content = LocalText("Reset defaults", "恢复默认", "既定値に戻す");
     }
 
+    private void SetEditorTexts()
+    {
+        ViewMap.Content = LocalText("Map", "导图", "マップ");
+        ViewOutline.Content = LocalText("Outline", "大纲", "アウトライン");
+        ViewSplit.Content = LocalText("Split", "分屏", "分割");
+        EditorViewMap.Content = ViewMap.Content;
+        EditorViewOutline.Content = ViewOutline.Content;
+        EditorViewSplit.Content = ViewSplit.Content;
+
+        EditorCategoryStart.Content = LocalText("Start", "开始", "開始");
+        EditorCategoryInsert.Content = LocalText("Insert", "插入", "挿入");
+        EditorCategoryStyle.Content = LocalText("Style", "样式", "スタイル");
+        EditorCategoryView.Content = LocalText("View", "视图", "表示");
+        EditorCategoryTools.Content = LocalText("Tools", "工具", "ツール");
+
+        EditorNewTopicButton.Content = "＋ " + LocalText("New topic", "新主题", "新規トピック");
+        EditorSubtopicButton.Content = "↳ " + LocalText("Subtopic", "子主题", "サブトピック");
+        EditorSiblingButton.Content = "⇢ " + LocalText("Sibling", "同级主题", "同階層トピック");
+        EditorDeleteButton.Content = "⌫ " + LocalText("Delete", "删除", "削除");
+        EditorCollapseButton.Content = "▾ " + LocalText("Collapse", "折叠", "折りたたむ");
+        EditorExpandButton.Content = "▴ " + LocalText("Expand", "展开", "展開");
+        EditorUndoButton.Content = "↶ " + LocalText("Undo", "撤销", "元に戻す");
+        EditorRedoButton.Content = "↷ " + LocalText("Redo", "重做", "やり直す");
+        EditorFormatToggleButton.Content = "◫ " + LocalText("Format", "格式", "書式");
+    }
+
     private void AddDocument(MindMapDocument document, string? filePath = null)
     {
         var tab = new TabViewItem
@@ -86,12 +115,90 @@ public sealed partial class MainWindow : Window
 
     private void SetActionMode(string mode)
     {
+        var isEditor = mode == "editor";
+        ContextIdentity.Visibility = isEditor ? Visibility.Collapsed : Visibility.Visible;
+        EditorCategoryBar.Visibility = isEditor ? Visibility.Visible : Visibility.Collapsed;
+        ContextActions.Visibility = isEditor ? Visibility.Collapsed : Visibility.Visible;
+        EditorCommandBar.Visibility = isEditor ? Visibility.Visible : Visibility.Collapsed;
+
         HomeActions.Visibility = mode == "home" ? Visibility.Visible : Visibility.Collapsed;
         DocumentsActions.Visibility = mode == "documents" ? Visibility.Visible : Visibility.Collapsed;
         TemplatesActions.Visibility = mode == "templates" ? Visibility.Visible : Visibility.Collapsed;
         SettingsActions.Visibility = mode == "settings" ? Visibility.Visible : Visibility.Collapsed;
         EditorActions.Visibility = mode == "editor" ? Visibility.Visible : Visibility.Collapsed;
         EditorViewSelector.Visibility = mode == "editor" ? Visibility.Visible : Visibility.Collapsed;
+
+        if (isEditor)
+            SyncEditorViewButtons();
+    }
+
+    private void SyncEditorViewButtons()
+    {
+        foreach (var button in new[] { ViewMap, ViewOutline, ViewSplit, EditorViewMap, EditorViewOutline, EditorViewSplit })
+        {
+            if (button.Tag is string tag)
+                button.IsChecked = tag == _editorMode;
+        }
+    }
+
+    private void ViewMode_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not ToggleButton { Tag: string mode } button) return;
+        _editorMode = mode;
+        SyncEditorViewButtons();
+
+        if (RootFrame.Content is EditorPage editor)
+            editor.SetView(mode);
+        else
+            Navigate("editor");
+    }
+
+    private void EditorCategory_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not ToggleButton { Tag: string tag }) return;
+        foreach (var button in new[] { EditorCategoryStart, EditorCategoryInsert, EditorCategoryStyle, EditorCategoryView, EditorCategoryTools })
+            button.IsChecked = button.Tag is string buttonTag && buttonTag == tag;
+    }
+
+    private void EditorNewTopic_Click(object sender, RoutedEventArgs e)
+        => AddEditorNode(LocalText("New topic", "新主题", "新規トピック"), addAsChild: false);
+
+    private void EditorSubtopic_Click(object sender, RoutedEventArgs e)
+        => AddEditorNode(LocalText("Subtopic", "子主题", "サブトピック"), addAsChild: true);
+
+    private void EditorSibling_Click(object sender, RoutedEventArgs e)
+        => AddEditorNode(LocalText("Sibling", "同级主题", "同階層トピック"), addAsChild: false);
+
+    private void EditorDelete_Click(object sender, RoutedEventArgs e)
+    {
+        // Keep the V4 toolbar control present without expanding the document model in this UI-only change.
+        if (RootFrame.Content is EditorPage editor) editor.Refresh();
+    }
+
+    private void EditorCollapse_Click(object sender, RoutedEventArgs e)
+    {
+        if (RootFrame.Content is EditorPage editor) editor.ToggleCollapse(true);
+    }
+
+    private void EditorExpand_Click(object sender, RoutedEventArgs e)
+    {
+        if (RootFrame.Content is EditorPage editor) editor.ToggleCollapse(false);
+    }
+
+    private void EditorFormatToggle_Click(object sender, RoutedEventArgs e)
+    {
+        if (RootFrame.Content is EditorPage editor) editor.ToggleFormatPanel();
+    }
+
+    private void AddEditorNode(string title, bool addAsChild)
+    {
+        var session = CurrentSession;
+        if (session is null) return;
+        session.History.Execute(new AddNodeCommand(
+            session.Document,
+            session.Document.RootNodeId,
+            title));
+        Navigate("editor");
     }
 
     private void Navigate(string tag)
@@ -130,7 +237,7 @@ public sealed partial class MainWindow : Window
             case "editor":
                 ContextTitle.Text = CurrentSession?.Document.Title ?? "MindCanvas";
                 ContextSubtitle.Text = LocalText("Mind map editor", "思维导图编辑器", "マインドマップエディター");
-                RootFrame.Navigate(typeof(EditorPage), CurrentSession?.Document);
+                RootFrame.Navigate(typeof(EditorPage), new EditorNavigation(CurrentSession?.Document, _editorMode));
                 break;
 
             default:
@@ -270,4 +377,7 @@ public sealed partial class MainWindow : Window
         public string? FilePath { get; set; } = filePath;
         public UndoRedoManager History { get; } = history;
     }
+
 }
+
+internal sealed record EditorNavigation(MindMapDocument? Document, string Mode);
