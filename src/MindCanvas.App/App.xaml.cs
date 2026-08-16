@@ -16,11 +16,41 @@ public partial class App : Application
 
     public static MainWindow MainWindow { get; private set; } = null!;
 
-    public App() => InitializeComponent();
+    public App()
+    {
+        StartupDiagnostics.Write("App constructor entered.");
+        UnhandledException += App_UnhandledException;
+        try
+        {
+            InitializeComponent();
+            StartupDiagnostics.Write("App.InitializeComponent completed.");
+        }
+        catch (Exception ex)
+        {
+            StartupDiagnostics.Write("App.InitializeComponent failed.", ex);
+            throw;
+        }
+    }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        MainWindow = new MainWindow();
-        MainWindow.Activate();
+        StartupDiagnostics.Write("App.OnLaunched entered.");
+        try
+        {
+            MainWindow = new MainWindow();
+            StartupDiagnostics.Write("MainWindow constructed.");
+            MainWindow.Activate();
+            StartupDiagnostics.Write("MainWindow activated.");
+        }
+        catch (Exception ex)
+        {
+            StartupDiagnostics.Write("App.OnLaunched failed.", ex);
+            throw;
+        }
+    }
+
+    private static void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    {
+        StartupDiagnostics.Write("Unhandled XAML exception.", e.Exception);
     }
 }
