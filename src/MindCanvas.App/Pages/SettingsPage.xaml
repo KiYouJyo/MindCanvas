@@ -2,7 +2,7 @@
     x:Class="MindCanvas.Pages.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid Padding="33,30,33,40" ColumnSpacing="26">
+    <Grid Padding="34,34,50,40" ColumnSpacing="32">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="230"/>
             <ColumnDefinition Width="*"/>
@@ -12,7 +12,7 @@
                 VerticalAlignment="Top"
                 CornerRadius="8"
                 Padding="12,14"
-                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}">
+                Background="{ThemeResource V4ContextActionsBackgroundBrush}">
             <ListView x:Name="SettingsCategories"
                       SelectionMode="Single"
                       SelectedIndex="0"
@@ -25,6 +25,9 @@
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                         <Setter Property="Padding" Value="12,0"/>
                         <Setter Property="Margin" Value="0,0,0,8"/>
+                        <Setter Property="Background" Value="{ThemeResource V4ControlHoverBackgroundBrush}"/>
+                        <Setter Property="Foreground" Value="{ThemeResource V4TextStrongBrush}"/>
+                        <Setter Property="BorderThickness" Value="0"/>
                     </Style>
                 </ListView.Resources>
             </ListView>
@@ -33,8 +36,9 @@
         <ScrollViewer Grid.Column="1">
             <StackPanel MaxWidth="908" HorizontalAlignment="Left" Spacing="12">
                 <TextBlock x:Name="SettingsSectionTitle"
-                           FontSize="20"
-                           FontWeight="SemiBold"
+                           FontSize="22"
+                           FontWeight="Bold"
+                           Foreground="{ThemeResource V4TextStrongBrush}"
                            Margin="0,-4,0,2"/>
                 <StackPanel x:Name="SettingsCards" Spacing="12"/>
             </StackPanel>

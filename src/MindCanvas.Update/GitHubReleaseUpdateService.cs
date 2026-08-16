@@ -14,7 +14,7 @@ public sealed class GitHubReleaseUpdateService : IUpdateService, IDisposable
     public GitHubReleaseUpdateService(HttpClient? client = null)
     {
         _client = client ?? new HttpClient();
-        _client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("MindCanvas", "0.1.0"));
+        _client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("MindCanvas", "0.1.5"));
         _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
     }
 

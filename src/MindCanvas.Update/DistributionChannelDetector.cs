@@ -32,7 +32,7 @@ public static class DistributionChannelDetector
         }
         catch
         {
-            return typeof(DistributionChannelDetector).Assembly.GetName().Version ?? new Version(0, 1, 0, 0);
+            return typeof(DistributionChannelDetector).Assembly.GetName().Version ?? new Version(0, 1, 5, 0);
         }
     }
 }

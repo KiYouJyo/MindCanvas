@@ -2,14 +2,16 @@
 
 [简体中文](README.md) · [English](README.en-US.md) · [日本語](README.ja-JP.md)
 
-> **Preview** — v0.1.0 is the first public engineering preview. v0.1.5 will focus on high-fidelity V4 UI implementation.
+> **Preview** — v0.1.0 was the first public engineering preview. v0.1.5 implements the high-fidelity Figma V4 UI.
 
 MindCanvas is a Windows-native mind mapping and outline application built with **WinUI 3**. Mind map, outline, and split views share one document tree (SSOT), while layouts, themes, and content templates are designed as separate systems.
 
-## v0.1.0 Preview
+## v0.1.5 Preview
 
 - WinUI 3 / Windows App SDK application shell with persistent document tabs
-- Home / Documents / Templates / Settings navigation
+- Home / Documents / Templates / Settings navigation plus Map / Outline / Split editing views
+- Figma V4-aligned global shell, page layout, dimensions, spacing, corner radii, typography, and control states
+- Seven distinct Settings categories: General, Language & region, Appearance, Editing, Files, Export, About
 - Simplified Chinese, English, and Japanese UI resources
 - `.mcanvas` document model and JSON persistence
 - New / open / save / save as, autosave groundwork, undo / redo foundation

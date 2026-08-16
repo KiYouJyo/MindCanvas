@@ -4,8 +4,18 @@ All notable changes to MindCanvas are documented here. Product releases follow S
 
 ## [Unreleased]
 
-### Planned
-- v0.1.5: high-fidelity WinUI 3 implementation of the approved Figma V4 UI.
+## [0.1.5] - 2026-08-16
+
+### Added
+- High-fidelity WinUI 3 implementation of the approved Figma V4 UI.
+- Unified V4 top shell with persistent document tabs, context/category header, page actions, and editor command bar.
+- Home, Documents, Templates, Settings, Map, Outline, and Split views aligned to V4 dimensions, spacing, colors, typography, and control states.
+- Seven distinct Settings categories (General, Language & region, Appearance, Editing, Files, Export, About).
+- Simplified Chinese, English, and Japanese strings for the V4 shell and page content.
+
+### Changed
+- Bumped package version to 0.1.5.0.
+- Updated in-app update metadata to v0.1.5.
 
 ## [0.1.0] - 2026-08-16
 
