@@ -49,7 +49,7 @@ jobs:
 
   acceptance-package:
     needs: build-test
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[acceptance]')) }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[acceptance]')) || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[acceptance]')) }}
     runs-on: windows-2025-vs2026
     timeout-minutes: 30
     steps:
