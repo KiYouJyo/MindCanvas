@@ -44,9 +44,10 @@ public sealed partial class MainWindow
             try
             {
                 await _recoveryService.SaveSnapshotAsync(session.Document);
-                if (!string.IsNullOrWhiteSpace(session.FilePath))
+                if (!string.IsNullOrWhiteSpace(session.FilePath) && IsExternalFileWriteSafe(session.FilePath!))
                 {
                     await App.FileService.SaveAsync(session.Document, session.FilePath!);
+                    AcceptExternalFileVersion(session.FilePath!);
                     _functionalSavedVersions[session.Document.Id] = session.Document.ModifiedAt;
                     if (_recentDocumentStore is not null)
                         await _recentDocumentStore.RecordAsync(session.FilePath!, session.Document.Title);
@@ -156,10 +157,21 @@ public sealed partial class MainWindow
                     await SaveAsAsync(session);
                     if (string.IsNullOrWhiteSpace(session.FilePath))
                         return;
+                    AcceptExternalFileVersion(session.FilePath!);
+                }
+                else if (!IsExternalFileWriteSafe(session.FilePath!))
+                {
+                    // Never overwrite a disk version that changed outside MindCanvas while closing.
+                    session.FilePath = null;
+                    await SaveAsAsync(session);
+                    if (string.IsNullOrWhiteSpace(session.FilePath))
+                        return;
+                    AcceptExternalFileVersion(session.FilePath!);
                 }
                 else
                 {
                     await App.FileService.SaveAsync(session.Document, session.FilePath!);
+                    AcceptExternalFileVersion(session.FilePath!);
                 }
                 _functionalSavedVersions[session.Document.Id] = session.Document.ModifiedAt;
                 _recoveryService?.DeleteSnapshot(session.Document.Id);
