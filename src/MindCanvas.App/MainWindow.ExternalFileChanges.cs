@@ -172,7 +172,7 @@ public sealed partial class MainWindow
             _sessions[tab] = replacement;
             _functionalSavedVersions[external.Id] = external.ModifiedAt;
             _externalFileTracker.Accept(path);
-            if (DocumentTabs.SelectedItem == tab)
+            if (DocumentTabs.SelectedItem is TabViewItem selectedTab && ReferenceEquals(selectedTab, tab))
                 Navigate("editor");
             return;
         }
