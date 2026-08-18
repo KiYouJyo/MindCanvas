@@ -2,6 +2,10 @@ using MindCanvas.Core.Documents;
 
 namespace MindCanvas.Storage;
 
+public sealed record DroppedContentResult(
+    IReadOnlyList<Guid> CreatedNodeIds,
+    IReadOnlyList<Guid> AttachmentIds);
+
 public sealed class DroppedContentService(MindCanvasImportExportService importExport)
 {
     private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase)
@@ -19,20 +23,19 @@ public sealed class DroppedContentService(MindCanvasImportExportService importEx
         target.GetNode(parentId);
         var created = new List<Guid>();
 
-        foreach (var raw in items.Where(item => !string.IsNullOrWhiteSpace(item)))
+        foreach (var raw in NormalizeItems(items))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var item = raw.Trim();
-            if (Uri.TryCreate(item, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https")
+            if (TryWebUri(raw, out var uri))
             {
-                var node = target.AddChild(parentId, string.IsNullOrWhiteSpace(uri.Host) ? item : uri.Host);
-                target.SetNodeHyperlink(node.Id, item);
-                target.AddNodeAttachment(node.Id, NodeAttachmentKind.Link, node.Title, item, true);
+                var node = target.AddChild(parentId, string.IsNullOrWhiteSpace(uri.Host) ? raw : uri.Host);
+                target.SetNodeHyperlink(node.Id, raw);
+                target.AddNodeAttachment(node.Id, NodeAttachmentKind.Link, node.Title, raw, true);
                 created.Add(node.Id);
                 continue;
             }
 
-            var fullPath = Path.GetFullPath(item);
+            var fullPath = Path.GetFullPath(raw);
             if (!File.Exists(fullPath))
                 continue;
 
@@ -40,8 +43,7 @@ public sealed class DroppedContentService(MindCanvasImportExportService importEx
             if (!linkOnly && IsStructuredMindMap(extension))
             {
                 var imported = await importExport.ImportAsync(fullPath, cancellationToken);
-                var importedRoot = CopySubtree(imported, imported.RootNodeId, target, parentId);
-                created.Add(importedRoot);
+                created.Add(CopySubtree(imported, imported.RootNodeId, target, parentId));
                 continue;
             }
 
@@ -55,11 +57,75 @@ public sealed class DroppedContentService(MindCanvasImportExportService importEx
         return created;
     }
 
+    public async Task<DroppedContentResult> AttachAsync(
+        MindMapDocument target,
+        Guid nodeId,
+        IEnumerable<string> items,
+        CancellationToken cancellationToken = default)
+    {
+        target.GetNode(nodeId);
+        var createdNodes = new List<Guid>();
+        var attachments = new List<Guid>();
+
+        foreach (var raw in NormalizeItems(items))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (TryWebUri(raw, out var uri))
+            {
+                var attachment = target.AddNodeAttachment(
+                    nodeId,
+                    NodeAttachmentKind.Link,
+                    string.IsNullOrWhiteSpace(uri.Host) ? raw : uri.Host,
+                    raw,
+                    true);
+                attachments.Add(attachment.Id);
+                continue;
+            }
+
+            var fullPath = Path.GetFullPath(raw);
+            if (!File.Exists(fullPath))
+                continue;
+
+            var extension = Path.GetExtension(fullPath);
+            if (IsStructuredMindMap(extension))
+            {
+                var imported = await importExport.ImportAsync(fullPath, cancellationToken);
+                createdNodes.Add(CopySubtree(imported, imported.RootNodeId, target, nodeId));
+                continue;
+            }
+
+            var kind = ImageExtensions.Contains(extension) ? NodeAttachmentKind.Image : NodeAttachmentKind.File;
+            var attachment = target.AddNodeAttachment(nodeId, kind, Path.GetFileName(fullPath), fullPath, true);
+            attachments.Add(attachment.Id);
+        }
+
+        return new DroppedContentResult(createdNodes, attachments);
+    }
+
+    private static IEnumerable<string> NormalizeItems(IEnumerable<string> items) =>
+        items.Where(item => !string.IsNullOrWhiteSpace(item)).Select(item => item.Trim());
+
+    private static bool TryWebUri(string value, out Uri uri)
+    {
+        if (Uri.TryCreate(value, UriKind.Absolute, out var parsed) && parsed.Scheme is "http" or "https")
+        {
+            uri = parsed;
+            return true;
+        }
+
+        uri = null!;
+        return false;
+    }
+
     private static bool IsStructuredMindMap(string extension) =>
         extension.Equals(MindCanvasFileService.Extension, StringComparison.OrdinalIgnoreCase) ||
         extension.Equals(".md", StringComparison.OrdinalIgnoreCase) ||
         extension.Equals(".markdown", StringComparison.OrdinalIgnoreCase) ||
-        extension.Equals(".opml", StringComparison.OrdinalIgnoreCase);
+        extension.Equals(".opml", StringComparison.OrdinalIgnoreCase) ||
+        extension.Equals(".mm", StringComparison.OrdinalIgnoreCase) ||
+        extension.Equals(".mmd", StringComparison.OrdinalIgnoreCase) ||
+        extension.Equals(".mermaid", StringComparison.OrdinalIgnoreCase) ||
+        extension.Equals(".xmind", StringComparison.OrdinalIgnoreCase);
 
     private static Guid CopySubtree(MindMapDocument source, Guid sourceId, MindMapDocument target, Guid targetParentId)
     {
@@ -72,7 +138,7 @@ public sealed class DroppedContentService(MindCanvasImportExportService importEx
         target.SetNodeMarkers(targetNode.Id, sourceNode.Markers);
         target.SetNodeCollapsed(targetNode.Id, sourceNode.IsCollapsed);
         foreach (var attachment in sourceNode.Attachments)
-            target.AddNodeAttachment(targetNode.Id, attachment.Kind, attachment.Name, attachment.Target, attachment.IsLinked);
+            target.InsertNodeAttachment(targetNode.Id, attachment with { Id = Guid.NewGuid() });
         foreach (var childId in sourceNode.ChildrenIds)
             CopySubtree(source, childId, target, targetNode.Id);
         return targetNode.Id;
