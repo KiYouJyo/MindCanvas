@@ -168,14 +168,26 @@ public sealed class DocumentLibraryStore(string indexPath)
             .ToList();
 
         var validCustomIds = state.CustomFolders.Select(folder => folder.Id).ToHashSet(StringComparer.Ordinal);
-        foreach (var path in state.Assignments.Keys.ToArray())
+        var normalizedAssignments = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var pair in state.Assignments)
         {
-            var folderId = state.Assignments[path];
+            if (string.IsNullOrWhiteSpace(pair.Key) || string.IsNullOrWhiteSpace(pair.Value))
+                continue;
+
+            var folderId = pair.Value;
             if (!DocumentLibraryFolderIds.SystemFolders.Contains(folderId, StringComparer.Ordinal) &&
                 !validCustomIds.Contains(folderId))
+                continue;
+
+            try
             {
-                state.Assignments.Remove(path);
+                normalizedAssignments[Path.GetFullPath(pair.Key)] = folderId;
+            }
+            catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
+            {
+                // Ignore stale or malformed paths from an older/corrupt local index.
             }
         }
+        state.Assignments = normalizedAssignments;
     }
 }
