@@ -111,7 +111,7 @@ public sealed partial class DocumentsPage : Page
         return local.ToString("yyyy-MM-dd");
     }
 
-    private static Brush AccentBrush(int index) => index % 4 switch
+    private static Brush AccentBrush(int index) => (index % 4) switch
     {
         1 => new SolidColorBrush(ColorHelper.FromArgb(255, 89, 176, 99)),
         2 => new SolidColorBrush(ColorHelper.FromArgb(255, 242, 156, 41)),
