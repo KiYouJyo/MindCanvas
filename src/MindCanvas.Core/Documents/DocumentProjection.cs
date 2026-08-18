@@ -25,6 +25,7 @@ public static class DocumentProjection
         {
             Id = source.Id,
             SchemaVersion = source.SchemaVersion,
+            Revision = source.Revision,
             Title = sourceRoot.Title,
             RootNodeId = rootNodeId,
             CreatedAt = source.CreatedAt,
