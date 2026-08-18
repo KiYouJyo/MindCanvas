@@ -51,7 +51,7 @@ public sealed partial class EditorPage
             throw new InvalidDataException("Unexpected BGRA pixel buffer length.");
 
         var rgb = new byte[checked(bgra.Length / 4 * 3)];
-        for (var source = 0, target = 0; source < bgra.Length; source += 4, target += 3)
+        for (int source = 0, target = 0; source < bgra.Length; source += 4, target += 3)
         {
             var blue = bgra[source];
             var green = bgra[source + 1];
