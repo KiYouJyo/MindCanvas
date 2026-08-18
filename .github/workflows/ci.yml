@@ -4,6 +4,11 @@ on:
   push:
     branches: [ main, 'codex/**' ]
   pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: mindcanvas-ci-${{ github.workflow }}-${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[acceptance]') && 'acceptance' || (github.head_ref || github.ref_name) }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -21,14 +26,20 @@ jobs:
         shell: pwsh
         run: |
           dotnet restore tests/MindCanvas.Core.Tests/MindCanvas.Core.Tests.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet restore tests/MindCanvas.Layout.Tests/MindCanvas.Layout.Tests.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet restore tests/MindCanvas.Storage.Tests/MindCanvas.Storage.Tests.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Test core libraries
         shell: pwsh
         run: |
           dotnet test tests/MindCanvas.Core.Tests/MindCanvas.Core.Tests.csproj -c Release --no-restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet test tests/MindCanvas.Layout.Tests/MindCanvas.Layout.Tests.csproj -c Release --no-restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet test tests/MindCanvas.Storage.Tests/MindCanvas.Storage.Tests.csproj -c Release --no-restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Restore WinUI application
         shell: pwsh
         run: dotnet restore src/MindCanvas.App/MindCanvas.App.csproj -p:Platform=x64 -r win-x64
@@ -38,22 +49,31 @@ jobs:
 
   acceptance-package:
     needs: build-test
-    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/codex/') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[acceptance]')) || (github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[acceptance]')) }}
     runs-on: windows-2025-vs2026
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - name: Resolve acceptance version
+        shell: pwsh
+        run: |
+          [xml]$manifest=Get-Content src/MindCanvas.App/Package.appxmanifest -Raw
+          $packageVersion=$manifest.Package.Identity.Version
+          if($packageVersion -notmatch '^(\d+\.\d+\.\d+)\.0$'){throw "Invalid package version: $packageVersion"}
+          $displayVersion=$Matches[1]
+          "PACKAGE_VERSION=$packageVersion"|Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "DISPLAY_VERSION=$displayVersion"|Out-File $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Build and validate unsigned x64 MSIX bundle
         shell: pwsh
         run: |
           $out=Join-Path $env:RUNNER_TEMP 'AppPackages'
           dotnet restore src/MindCanvas.App/MindCanvas.App.csproj -p:Platform=x64 -r win-x64
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet build src/MindCanvas.App/MindCanvas.App.csproj -c Release -p:Platform=x64 -r win-x64 -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false -p:AppxBundle=Always -p:AppxBundlePlatforms=x64 -p:UapAppxPackageBuildMode=SideloadOnly -p:AppxPackageDir="$out\" --no-restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $bundle=Get-ChildItem $out -Recurse -Filter '*.msixbundle'|Select-Object -First 1
           if(-not $bundle){throw 'MSIX bundle was not produced.'}
 
-          # Validate the actual payload, not only source files. This prevents a manifest from
-          # referencing generated assets that were created during build but omitted from MSIX.
           $inspect=Join-Path $env:RUNNER_TEMP 'msix-inspect'
           $bundleZip=Join-Path $env:RUNNER_TEMP 'bundle.zip'
           Copy-Item $bundle.FullName $bundleZip -Force
@@ -76,7 +96,8 @@ jobs:
             if(-not(Test-Path -LiteralPath $asset -PathType Leaf)){throw "MSIX payload is missing manifest asset: $relative"}
           }
 
-          $renamed=Join-Path $env:RUNNER_TEMP 'MindCanvas_0.1.0.0_x64.msixbundle';Copy-Item $bundle.FullName $renamed -Force
+          $renamed=Join-Path $env:RUNNER_TEMP "MindCanvas_$($env:PACKAGE_VERSION)_x64.msixbundle"
+          Copy-Item $bundle.FullName $renamed -Force
           "BUNDLE_PATH=$renamed"|Out-File $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Sign and create one-click acceptance ZIP
         shell: pwsh
@@ -92,14 +113,30 @@ jobs:
           $cer=Join-Path $work 'MindCanvas.cer';Export-Certificate -Cert $cert -FilePath $cer|Out-Null
           $kits=${env:ProgramFiles(x86)};$signtool=Get-ChildItem "$kits\Windows Kits\10\bin" -Recurse -Filter signtool.exe|Where-Object FullName -match '\\x64\\signtool.exe$'|Sort-Object FullName -Descending|Select-Object -First 1
           if(-not $signtool){throw 'signtool.exe not found.'}
-          & $signtool.FullName sign /fd SHA256 /sha1 $cert.Thumbprint $env:BUNDLE_PATH;if($LASTEXITCODE-ne 0){throw "signtool failed: $LASTEXITCODE"}
-          $signature=Get-AuthenticodeSignature $env:BUNDLE_PATH;if(-not $signature.SignerCertificate -or $signature.SignerCertificate.Thumbprint-ne$cert.Thumbprint){throw 'Signed bundle certificate mismatch.'}
-          $root=& ./packaging/New-GitHubOneClickInstallerPackage.ps1 -SignedBundlePath $env:BUNDLE_PATH -PublicCertificatePath $cer -OutputDirectory (Join-Path $work 'staging') -DisplayVersion '0.1.0' -Architecture x64
+          & $signtool.FullName sign /fd SHA256 /sha1 $cert.Thumbprint /tr http://timestamp.digicert.com /td SHA256 $env:BUNDLE_PATH
+          if($LASTEXITCODE-ne 0){throw "signtool failed: $LASTEXITCODE"}
+
+          $signature=Get-AuthenticodeSignature $env:BUNDLE_PATH
+          if(-not $signature.SignerCertificate){throw 'Signed bundle does not expose a signer certificate.'}
+          if($signature.SignerCertificate.Thumbprint-ne$cert.Thumbprint){throw 'Signed bundle certificate mismatch.'}
+          Write-Host "Signed bundle signer: $($signature.SignerCertificate.Subject)"
+          Write-Host "Signed bundle thumbprint: $($signature.SignerCertificate.Thumbprint)"
+          Write-Host "PowerShell trust status (informational): $($signature.Status)"
+
+          $root=& ./packaging/New-GitHubOneClickInstallerPackage.ps1 -SignedBundlePath $env:BUNDLE_PATH -PublicCertificatePath $cer -OutputDirectory (Join-Path $work 'staging') -DisplayVersion $env:DISPLAY_VERSION -Architecture x64
+          if($LASTEXITCODE-ne 0){throw "New-GitHubOneClickInstallerPackage failed: $LASTEXITCODE"}
           & ./packaging/Test-GitHubOneClickInstallerPackage.ps1 -ReleaseDirectory $root
-          $zip=Join-Path $work 'MindCanvas-v0.1.0-x64-one-click-acceptance.zip';Compress-Archive -LiteralPath $root -DestinationPath $zip -CompressionLevel Optimal
+          if($LASTEXITCODE-ne 0){throw "Test-GitHubOneClickInstallerPackage failed: $LASTEXITCODE"}
+          $zip=Join-Path $work "MindCanvas-v$($env:DISPLAY_VERSION)-x64-one-click-acceptance.zip"
+          Compress-Archive -LiteralPath $root -DestinationPath $zip -CompressionLevel Optimal
+          $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content (Join-Path $work 'SHA256SUMS-acceptance.txt') "$hash  $([IO.Path]::GetFileName($zip))" -Encoding ASCII
           "ACCEPTANCE_ZIP=$zip"|Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "ACCEPTANCE_SUMS=$(Join-Path $work 'SHA256SUMS-acceptance.txt')"|Out-File $env:GITHUB_ENV -Encoding utf8 -Append
       - uses: actions/upload-artifact@v4
         with:
-          name: MindCanvas-v0.1.0-x64-one-click-acceptance
-          path: ${{ env.ACCEPTANCE_ZIP }}
+          name: MindCanvas-x64-one-click-acceptance
+          path: |
+            ${{ env.ACCEPTANCE_ZIP }}
+            ${{ env.ACCEPTANCE_SUMS }}
           if-no-files-found: error

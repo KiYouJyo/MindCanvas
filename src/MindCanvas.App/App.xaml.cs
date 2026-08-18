@@ -42,6 +42,12 @@ public partial class App : Application
             MainWindow = new MainWindow();
             StartupDiagnostics.Write("MainWindow constructed.");
             MainWindow.Activate();
+            _ = MainWindow.InitializeFunctionalFoundationAsync();
+            MainWindow.InitializeDocumentLibraryIndex();
+            MainWindow.InitializeGlobalSearch();
+            MainWindow.InitializeExchangeCommands();
+            MainWindow.InitializeMultiSelectionBridge();
+            MainWindow.InitializeExternalFileChangeTracking();
             StartupDiagnostics.Write("MainWindow activated.");
         }
         catch (Exception ex)

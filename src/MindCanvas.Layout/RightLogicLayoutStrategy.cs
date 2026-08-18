@@ -5,6 +5,7 @@ namespace MindCanvas.Layout;
 
 public sealed class RightLogicLayoutStrategy : ILayoutStrategy
 {
+    private static readonly LayoutSnapshotCache Cache = new();
     private const double RootWidth = 156;
     private const double NodeWidth = 150;
     private const double NodeHeight = 48;
@@ -15,6 +16,27 @@ public sealed class RightLogicLayoutStrategy : ILayoutStrategy
     public string Id => "logic-right";
 
     public LayoutSnapshot Arrange(MindMapDocument document)
+    {
+        var strategyId = LayoutRuntime.CurrentId;
+        var focusId = LayoutRuntime.FocusRootNodeId;
+        return Cache.GetOrCreate(document, strategyId, focusId, () => ArrangeUncached(document, strategyId, focusId));
+    }
+
+    private static LayoutSnapshot ArrangeUncached(MindMapDocument document, string strategyId, Guid? focusId)
+    {
+        var source = focusId is Guid id && document.Nodes.ContainsKey(id)
+            ? DocumentProjection.CreateFocused(document, id)
+            : document;
+
+        return strategyId switch
+        {
+            "mindmap-balanced" => new BalancedMindMapLayoutStrategy().Arrange(source),
+            "logic-down" => new DownLogicLayoutStrategy().Arrange(source),
+            _ => ArrangeRight(source)
+        };
+    }
+
+    private static LayoutSnapshot ArrangeRight(MindMapDocument document)
     {
         document.Validate();
         var subtreeHeights = new Dictionary<Guid, double>();

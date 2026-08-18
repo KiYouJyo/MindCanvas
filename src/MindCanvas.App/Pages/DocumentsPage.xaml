@@ -2,6 +2,42 @@
     x:Class="MindCanvas.Pages.DocumentsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Page.Resources>
+        <DataTemplate x:Key="RecentDocumentCardTemplate">
+            <Border
+                Width="442"
+                Height="72"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                CornerRadius="8"
+                Padding="16,12"
+                Tag="{Binding Path}"
+                Tapped="DocumentCard_Tapped"
+                RightTapped="DocumentCard_RightTapped"
+                Background="{ThemeResource V4CardBackgroundBrush}"
+                BorderBrush="{ThemeResource V4CardStrokeBrush}"
+                BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4"/>
+                        <ColumnDefinition Width="52"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="24"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Background="{Binding AccentBrush}" CornerRadius="2" Margin="-16,-12,0,-12"/>
+                    <Border Grid.Column="1" Width="40" Height="40" CornerRadius="8" Background="{ThemeResource V4AccentSubtleBrush}" HorizontalAlignment="Center">
+                        <TextBlock Text="◇" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{ThemeResource V4AccentForegroundBrush}"/>
+                    </Border>
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4">
+                        <TextBlock Text="{Binding Title}" FontSize="15" FontWeight="Bold" Foreground="{ThemeResource V4TextStrongBrush}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding Meta}" FontSize="12" Foreground="{ThemeResource V4TextSecondaryBrush}" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="3" Text="›" FontSize="18" Foreground="{ThemeResource V4TextSecondaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Page.Resources>
+
     <ScrollViewer>
         <Grid Padding="34,34,50,40" ColumnSpacing="32">
             <Grid.ColumnDefinitions>
@@ -11,12 +47,13 @@
 
             <Border Height="624" VerticalAlignment="Top" CornerRadius="8" Padding="12"
                     Background="{ThemeResource V4ContextActionsBackgroundBrush}">
-                <StackPanel Spacing="8">
+                <StackPanel x:Name="FolderListPanel" Spacing="8">
                     <TextBlock x:Name="FoldersHeading" FontSize="16" FontWeight="Bold" Foreground="{ThemeResource V4TextStrongBrush}" Margin="6,4,0,2"/>
-                    <Button x:Name="AllDocumentsButton" Height="40" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="{ThemeResource V4ControlHoverBackgroundBrush}" Foreground="{ThemeResource V4TextStrongBrush}"/>
-                    <ToggleButton x:Name="GraduationFolderButton" Height="40" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" IsChecked="True" Background="{ThemeResource V4ControlSelectedBackgroundBrush}" BorderBrush="{ThemeResource V4ControlSelectedStrokeBrush}" Foreground="{ThemeResource V4AccentForegroundBrush}"/>
-                    <Button x:Name="ResearchFolderButton" Height="40" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="{ThemeResource V4ControlHoverBackgroundBrush}" Foreground="{ThemeResource V4TextStrongBrush}"/>
-                    <Button x:Name="StudyFolderButton" Height="40" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="{ThemeResource V4ControlHoverBackgroundBrush}" Foreground="{ThemeResource V4TextStrongBrush}"/>
+                    <Button x:Name="AllDocumentsButton" Height="40" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"/>
+                    <Button x:Name="GraduationFolderButton" Height="40" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"/>
+                    <Button x:Name="ResearchFolderButton" Height="40" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"/>
+                    <Button x:Name="StudyFolderButton" Height="40" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"/>
+                    <StackPanel x:Name="CustomFoldersPanel" Spacing="8"/>
                     <Button x:Name="NewFolderButton" Height="38" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,10,0,0" Background="{ThemeResource V4ControlBackgroundBrush}" BorderBrush="{ThemeResource V4DividerStrongBrush}" Foreground="{ThemeResource V4TextStrongBrush}"/>
                 </StackPanel>
             </Border>
@@ -25,32 +62,25 @@
                 <TextBlock x:Name="FolderTitle" FontSize="22" FontWeight="Bold" Foreground="{ThemeResource V4TextStrongBrush}"/>
                 <TextBlock x:Name="FolderMeta" FontSize="13" Foreground="{ThemeResource V4TextMutedBrush}" Margin="0,-6,0,12"/>
 
-                <Grid ColumnSpacing="28" RowSpacing="40">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="442"/>
-                        <ColumnDefinition Width="442"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions><RowDefinition Height="72"/><RowDefinition Height="72"/><RowDefinition Height="72"/></Grid.RowDefinitions>
+                <ItemsControl
+                    x:Name="DocumentsItems"
+                    Width="912"
+                    HorizontalAlignment="Left"
+                    ItemTemplate="{StaticResource RecentDocumentCardTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Horizontal" ItemWidth="456" ItemHeight="112"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
 
-                    <Border Grid.Row="0" Grid.Column="0" CornerRadius="8" Padding="16,12" Background="{ThemeResource V4CardBackgroundBrush}" BorderBrush="{ThemeResource V4CardStrokeBrush}" BorderThickness="1">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="4"/><ColumnDefinition Width="52"/><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions><Border Background="{ThemeResource V4AccentBrush}" CornerRadius="2" Margin="-16,-12,0,-12"/><Border Grid.Column="1" Width="40" Height="40" CornerRadius="8" Background="{ThemeResource V4AccentSubtleBrush}" HorizontalAlignment="Center"/><StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4"><TextBlock x:Name="Doc1Title" FontSize="15" FontWeight="Bold" Foreground="{ThemeResource V4TextStrongBrush}"/><TextBlock x:Name="Doc1Meta" FontSize="12" Foreground="{ThemeResource V4TextSecondaryBrush}"/></StackPanel><TextBlock Grid.Column="3" Text="⋯" FontSize="18" Foreground="{ThemeResource V4TextSecondaryBrush}" VerticalAlignment="Center"/></Grid>
-                    </Border>
-                    <Border Grid.Row="0" Grid.Column="1" CornerRadius="8" Padding="16,12" Background="{ThemeResource V4CardBackgroundBrush}" BorderBrush="{ThemeResource V4CardStrokeBrush}" BorderThickness="1">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="4"/><ColumnDefinition Width="52"/><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions><Border Background="#59B063" CornerRadius="2" Margin="-16,-12,0,-12"/><Border Grid.Column="1" Width="40" Height="40" CornerRadius="8" Background="{ThemeResource V4AccentSubtleBrush}" HorizontalAlignment="Center"/><StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4"><TextBlock x:Name="Doc2Title" FontSize="15" FontWeight="Bold" Foreground="{ThemeResource V4TextStrongBrush}"/><TextBlock x:Name="Doc2Meta" FontSize="12" Foreground="{ThemeResource V4TextSecondaryBrush}"/></StackPanel><TextBlock Grid.Column="3" Text="⋯" FontSize="18" Foreground="{ThemeResource V4TextSecondaryBrush}" VerticalAlignment="Center"/></Grid>
-                    </Border>
-                    <Border Grid.Row="1" Grid.Column="0" CornerRadius="8" Padding="16,12" Background="{ThemeResource V4CardBackgroundBrush}" BorderBrush="{ThemeResource V4CardStrokeBrush}" BorderThickness="1">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="4"/><ColumnDefinition Width="52"/><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions><Border Background="#F29C29" CornerRadius="2" Margin="-16,-12,0,-12"/><Border Grid.Column="1" Width="40" Height="40" CornerRadius="8" Background="{ThemeResource V4AccentSubtleBrush}" HorizontalAlignment="Center"/><StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4"><TextBlock x:Name="Doc3Title" FontSize="15" FontWeight="Bold" Foreground="{ThemeResource V4TextStrongBrush}"/><TextBlock x:Name="Doc3Meta" FontSize="12" Foreground="{ThemeResource V4TextSecondaryBrush}"/></StackPanel><TextBlock Grid.Column="3" Text="⋯" FontSize="18" Foreground="{ThemeResource V4TextSecondaryBrush}" VerticalAlignment="Center"/></Grid>
-                    </Border>
-                    <Border Grid.Row="1" Grid.Column="1" CornerRadius="8" Padding="16,12" Background="{ThemeResource V4CardBackgroundBrush}" BorderBrush="{ThemeResource V4CardStrokeBrush}" BorderThickness="1">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="4"/><ColumnDefinition Width="52"/><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions><Border Background="#9E54DB" CornerRadius="2" Margin="-16,-12,0,-12"/><Border Grid.Column="1" Width="40" Height="40" CornerRadius="8" Background="{ThemeResource V4AccentSubtleBrush}" HorizontalAlignment="Center"/><StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4"><TextBlock x:Name="Doc4Title" FontSize="15" FontWeight="Bold" Foreground="{ThemeResource V4TextStrongBrush}"/><TextBlock x:Name="Doc4Meta" FontSize="12" Foreground="{ThemeResource V4TextSecondaryBrush}"/></StackPanel><TextBlock Grid.Column="3" Text="⋯" FontSize="18" Foreground="{ThemeResource V4TextSecondaryBrush}" VerticalAlignment="Center"/></Grid>
-                    </Border>
-                    <Border Grid.Row="2" Grid.Column="0" CornerRadius="8" Padding="16,12" Background="{ThemeResource V4CardBackgroundBrush}" BorderBrush="{ThemeResource V4CardStrokeBrush}" BorderThickness="1">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="4"/><ColumnDefinition Width="52"/><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions><Border Background="{ThemeResource V4AccentBrush}" CornerRadius="2" Margin="-16,-12,0,-12"/><Border Grid.Column="1" Width="40" Height="40" CornerRadius="8" Background="{ThemeResource V4AccentSubtleBrush}" HorizontalAlignment="Center"/><StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4"><TextBlock x:Name="Doc5Title" FontSize="15" FontWeight="Bold" Foreground="{ThemeResource V4TextStrongBrush}"/><TextBlock x:Name="Doc5Meta" FontSize="12" Foreground="{ThemeResource V4TextSecondaryBrush}"/></StackPanel><TextBlock Grid.Column="3" Text="⋯" FontSize="18" Foreground="{ThemeResource V4TextSecondaryBrush}" VerticalAlignment="Center"/></Grid>
-                    </Border>
-                    <Border Grid.Row="2" Grid.Column="1" CornerRadius="8" Padding="16,12" Background="{ThemeResource V4CardBackgroundBrush}" BorderBrush="{ThemeResource V4CardStrokeBrush}" BorderThickness="1">
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="4"/><ColumnDefinition Width="52"/><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions><Border Background="#59B063" CornerRadius="2" Margin="-16,-12,0,-12"/><Border Grid.Column="1" Width="40" Height="40" CornerRadius="8" Background="{ThemeResource V4AccentSubtleBrush}" HorizontalAlignment="Center"/><StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4"><TextBlock x:Name="Doc6Title" FontSize="15" FontWeight="Bold" Foreground="{ThemeResource V4TextStrongBrush}"/><TextBlock x:Name="Doc6Meta" FontSize="12" Foreground="{ThemeResource V4TextSecondaryBrush}"/></StackPanel><TextBlock Grid.Column="3" Text="⋯" FontSize="18" Foreground="{ThemeResource V4TextSecondaryBrush}" VerticalAlignment="Center"/></Grid>
-                    </Border>
-                </Grid>
+                <Border x:Name="EmptyDocumentsCard" Height="128" CornerRadius="8" Padding="22" Visibility="Collapsed"
+                        Background="{ThemeResource V4CardBackgroundBrush}" BorderBrush="{ThemeResource V4CardStrokeBrush}" BorderThickness="1">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="6">
+                        <TextBlock x:Name="EmptyDocumentsTitle" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" Foreground="{ThemeResource V4TextStrongBrush}"/>
+                        <TextBlock x:Name="EmptyDocumentsBody" FontSize="12" HorizontalAlignment="Center" Foreground="{ThemeResource V4TextSecondaryBrush}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
 
                 <Border Height="154" CornerRadius="8" Padding="18" Margin="0,14,0,0" Background="{ThemeResource V4CardBackgroundBrush}" BorderBrush="{ThemeResource V4CardStrokeBrush}" BorderThickness="1">
                     <StackPanel Spacing="10">
@@ -58,7 +88,7 @@
                         <TextBlock x:Name="LocalDocumentsDescription" FontSize="13" Foreground="{ThemeResource V4TextSecondaryBrush}" TextWrapping="Wrap"/>
                         <Grid ColumnSpacing="16" Margin="0,10,0,0">
                             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <ProgressBar Value="31" Maximum="100" Height="10"/>
+                            <ProgressBar x:Name="RecentIndexProgress" Value="0" Maximum="20" Height="10"/>
                             <TextBlock x:Name="StorageUsageText" Grid.Column="1" FontSize="13" Foreground="{ThemeResource V4TextSecondaryBrush}"/>
                         </Grid>
                     </StackPanel>

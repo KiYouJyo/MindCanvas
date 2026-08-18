@@ -4,6 +4,26 @@ All notable changes to MindCanvas are documented here. Product releases follow S
 
 ## [Unreleased]
 
+### Added
+- Started v0.2.0 functional editor integration on top of the Figma V4 UI baseline.
+- Selected-node synchronization between map, narrow outline, and full outline views.
+- Functional root-topic, subtopic, sibling-topic, delete, collapse, expand, rename, undo, and redo actions.
+- Clipboard subtree operations with cross-tab copy, cut, paste, and duplicate support while generating fresh node IDs for pasted copies.
+- Keyboard tree navigation with Up / Down, parent / child traversal with Left / Right, and hierarchy editing with Alt + Arrow keys.
+- Keyboard editing shortcuts: Enter for sibling topics, Tab/Insert for subtopics, Delete for deletion, F2 for rename, Ctrl+C/X/V/D for subtree clipboard operations, and Ctrl+Z/Y for undo/redo.
+- Undoable delete, move, collapse, and subtree-insert commands in the document core.
+- Document-independent subtree templates that preserve titles, notes, hyperlinks, collapsed state, child order, and nested content.
+- Real map zoom controls with 25%–400% range, live zoom percentage, and fit-to-view.
+- Visible-tree traversal for collapsed branches and expanded tests covering editor mutation and subtree copy/paste primitives.
+- Signed x64 acceptance packaging in CI with manifest-payload validation, signature verification, one-click installer validation, and SHA-256 checksum output.
+
+### Changed
+- Map / Outline / Split now behave as distinct functional view modes rather than presentation-only states.
+- Editor toolbar enablement now follows the selected node and undo/redo history.
+- Per-document selected-node state is retained when switching tabs or editor views.
+- Development package version advanced to 0.2.0.0.
+- Acceptance package metadata and filenames are now derived from the actual package manifest instead of the old v0.1.0 bootstrap value.
+
 ## [0.1.5] - 2026-08-16
 
 ### Added
