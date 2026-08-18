@@ -85,6 +85,7 @@ public sealed partial class MainWindow
         picker.FileTypeChoices.Add("OPML", new List<string> { ".opml" });
         picker.FileTypeChoices.Add("SVG", new List<string> { ".svg" });
         picker.FileTypeChoices.Add("PNG", new List<string> { ".png" });
+        picker.FileTypeChoices.Add("PDF", new List<string> { ".pdf" });
         var file = await picker.PickSaveFileAsync();
         if (file is null)
             return;
@@ -103,11 +104,17 @@ public sealed partial class MainWindow
                     await File.WriteAllTextAsync(file.Path, new SvgMindMapExporter().Export(session.Document));
                     break;
                 case ".png":
+                case ".pdf":
+                {
                     var editor = GetOrOpenEditor();
                     if (editor is null)
                         throw new InvalidOperationException("The editor is not available for canvas export.");
-                    await editor.ExportPngAsync(file);
+                    if (extension == ".png")
+                        await editor.ExportPngAsync(file);
+                    else
+                        await editor.ExportPdfAsync(file);
                     break;
+                }
                 default:
                     throw new NotSupportedException($"Unsupported export format: {extension}");
             }
