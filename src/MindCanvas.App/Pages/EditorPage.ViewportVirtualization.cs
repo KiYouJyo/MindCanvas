@@ -16,6 +16,7 @@ public sealed partial class EditorPage
     private bool _viewportRenderPending;
     private bool _viewportRenderRunning;
     private bool _viewportVirtualized;
+    private bool _viewportVirtualizationSuspended;
 
     public void InitializeViewportVirtualization()
     {
@@ -37,7 +38,7 @@ public sealed partial class EditorPage
 
     private void ViewportVirtualization_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
     {
-        if (_nodeDragActive)
+        if (_nodeDragActive || _viewportVirtualizationSuspended)
             return;
         ScheduleViewportRender(immediate: !e.IsIntermediate);
     }
@@ -53,7 +54,7 @@ public sealed partial class EditorPage
 
     private void ScheduleViewportRender(bool immediate)
     {
-        if (!_viewportVirtualizationInitialized || _document is null || MapHost.Visibility != Visibility.Visible)
+        if (!_viewportVirtualizationInitialized || _viewportVirtualizationSuspended || _document is null || MapHost.Visibility != Visibility.Visible)
             return;
 
         if (_document.EnumerateVisibleDepthFirst().Take(_viewportLayoutFilter.VirtualizationThreshold + 1).Count() <= _viewportLayoutFilter.VirtualizationThreshold)
@@ -83,7 +84,7 @@ public sealed partial class EditorPage
 
     private void ApplyViewportVirtualization()
     {
-        if (_viewportRenderRunning || _document is null || _nodeDragActive || MapHost.Visibility != Visibility.Visible)
+        if (_viewportRenderRunning || _viewportVirtualizationSuspended || _document is null || _nodeDragActive || MapHost.Visibility != Visibility.Visible)
             return;
 
         var zoom = Math.Max(0.01, MapScrollViewer.ZoomFactor);
@@ -126,6 +127,27 @@ public sealed partial class EditorPage
         {
             _viewportRenderRunning = false;
         }
+    }
+
+    private bool SuspendVirtualizationForFullCanvas()
+    {
+        var restore = _viewportVirtualized;
+        _viewportVirtualizationSuspended = true;
+        _viewportRenderTimer.Stop();
+        _viewportRenderPending = false;
+        if (_document is not null && restore)
+        {
+            RenderMap(_document);
+            RefreshNodeDecorations();
+        }
+        return restore;
+    }
+
+    private void ResumeVirtualizationAfterFullCanvas(bool restore)
+    {
+        _viewportVirtualizationSuspended = false;
+        if (restore)
+            ScheduleViewportRender(immediate: true);
     }
 
     private void RemoveRetainedMapVisuals()
@@ -250,6 +272,7 @@ public sealed partial class EditorPage
             };
             Grid.SetColumn(text, 1);
             grid.Children.Add(text);
+            ApplyNodeDecoration(grid, node);
 
             border.Child = grid;
             Canvas.SetLeft(border, layout.Bounds.X);
