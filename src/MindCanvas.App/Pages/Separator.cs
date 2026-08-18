@@ -4,7 +4,7 @@ using Microsoft.UI.Xaml.Media;
 
 namespace MindCanvas.Pages;
 
-internal sealed class Separator : Border
+internal sealed class Separator : ContentControl
 {
     public Separator()
     {
