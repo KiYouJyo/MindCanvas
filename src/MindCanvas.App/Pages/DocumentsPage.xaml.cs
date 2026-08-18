@@ -1,12 +1,22 @@
+using Microsoft.UI;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using MindCanvas.Storage;
 
 namespace MindCanvas.Pages;
 
 public sealed partial class DocumentsPage : Page
 {
+    private readonly RecentDocumentStore _recentStore;
+
     public DocumentsPage()
     {
         InitializeComponent();
+
+        var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        _recentStore = new RecentDocumentStore(Path.Combine(local, "MindCanvas", "recent-documents.json"), capacity: 20);
 
         FoldersHeading.Text = T("Folders", "文件夹", "フォルダー");
         AllDocumentsButton.Content = T("All documents", "全部文档", "すべてのドキュメント");
@@ -15,29 +25,99 @@ public sealed partial class DocumentsPage : Page
         StudyFolderButton.Content = T("Study notes", "学习笔记", "学習ノート");
         NewFolderButton.Content = T("+ New folder", "＋ 新建文件夹", "＋ 新しいフォルダー");
 
-        FolderTitle.Text = T("Graduation design", "毕业设计", "卒業設計");
-        FolderMeta.Text = T("6 documents · updated today", "6 个文档 · 最近更新于今天", "6 件 · 今日更新");
+        FolderTitle.Text = T("All documents", "全部文档", "すべてのドキュメント");
+        FolderMeta.Text = T("Loading recent documents…", "正在读取最近文档…", "最近のドキュメントを読み込み中…");
 
-        Doc1Title.Text = T("Northern Software Park renewal", "北部软件园更新", "北部ソフトウェア園更新");
-        Doc1Meta.Text = T("Today · 24 topics", "今天 · 24 个主题", "今日 · 24 トピック");
-        Doc2Title.Text = T("Portfolio structure", "作品集结构", "ポートフォリオ構成");
-        Doc2Meta.Text = T("Yesterday · 13 topics", "昨天 · 13 个主题", "昨日 · 13 トピック");
-        Doc3Title.Text = T("Site analysis", "场地分析", "敷地分析");
-        Doc3Meta.Text = T("Aug 10 · 18 topics", "8 月 10 日 · 18 个主题", "8月10日 · 18 トピック");
-        Doc4Title.Text = T("Design concept", "设计概念", "設計コンセプト");
-        Doc4Meta.Text = T("Aug 8 · 9 topics", "8 月 8 日 · 9 个主题", "8月8日 · 9 トピック");
-        Doc5Title.Text = T("Case studies", "案例研究", "事例研究");
-        Doc5Meta.Text = T("Aug 5 · 21 topics", "8 月 5 日 · 21 个主题", "8月5日 · 21 トピック");
-        Doc6Title.Text = T("Presentation outline", "汇报大纲", "プレゼン構成");
-        Doc6Meta.Text = T("Aug 2 · 11 topics", "8 月 2 日 · 11 个主题", "8月2日 · 11 トピック");
+        EmptyDocumentsTitle.Text = T("No recent documents", "暂无最近文档", "最近のドキュメントはありません");
+        EmptyDocumentsBody.Text = T(
+            "Open or save a MindCanvas document and it will appear here.",
+            "打开或保存一个 MindCanvas 文档后，它会出现在这里。",
+            "MindCanvas ドキュメントを開くか保存すると、ここに表示されます。");
 
-        LocalDocumentsTitle.Text = T("Local documents", "本地文档", "ローカルドキュメント");
+        LocalDocumentsTitle.Text = T("Local document index", "本地文档索引", "ローカルドキュメント索引");
         LocalDocumentsDescription.Text = T(
-            "MindCanvas saves documents locally by default. Change the default location in Files settings.",
-            "MindCanvas 默认将文档保存在本地。后续可在“文件”设置中修改默认位置。",
-            "MindCanvas は既定でローカルに保存します。保存先は「ファイル」設定で変更できます。");
-        StorageUsageText.Text = T("31% used", "31% 已使用", "31% 使用中");
+            "MindCanvas keeps a local recent-document index. Missing files are removed automatically; document contents remain in your own files.",
+            "MindCanvas 仅在本地保存最近文档索引。不存在的文件会自动移除，文档内容仍保存在你自己的文件中。",
+            "MindCanvas は最近使ったドキュメントの索引だけをローカルに保持します。存在しないファイルは自動的に除外され、内容は元のファイルに保存されます。");
+        StorageUsageText.Text = "0 / 20";
+
+        Loaded += DocumentsPage_Loaded;
     }
+
+    private async void DocumentsPage_Loaded(object sender, RoutedEventArgs e)
+        => await RefreshRecentDocumentsAsync();
+
+    private async Task RefreshRecentDocumentsAsync()
+    {
+        var recents = await _recentStore.RemoveMissingAsync();
+        var cards = new List<RecentDocumentCard>();
+        var index = 0;
+
+        foreach (var recent in recents)
+        {
+            try
+            {
+                var document = await App.FileService.LoadAsync(recent.Path);
+                var topicCount = document.EnumerateDepthFirst().Count();
+                cards.Add(new RecentDocumentCard(
+                    recent.Path,
+                    string.IsNullOrWhiteSpace(document.Title) ? recent.Title : document.Title,
+                    FormatMeta(recent.LastOpenedAt, topicCount),
+                    AccentBrush(index++)));
+            }
+            catch
+            {
+                // Keep a corrupt/incompatible file out of the visible list without deleting it from disk.
+            }
+        }
+
+        DocumentsItems.ItemsSource = cards;
+        EmptyDocumentsCard.Visibility = cards.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        FolderMeta.Text = cards.Count == 0
+            ? T("No indexed local documents", "没有已索引的本地文档", "索引済みのローカルドキュメントはありません")
+            : T(
+                $"{cards.Count} documents · most recently opened {FormatRelative(recents[0].LastOpenedAt)}",
+                $"{cards.Count} 个文档 · 最近打开于{FormatRelative(recents[0].LastOpenedAt)}",
+                $"{cards.Count} 件 · 最終オープン {FormatRelative(recents[0].LastOpenedAt)}");
+        RecentIndexProgress.Value = Math.Min(_recentStore.Capacity, cards.Count);
+        StorageUsageText.Text = $"{Math.Min(_recentStore.Capacity, cards.Count)} / {_recentStore.Capacity}";
+    }
+
+    private async void DocumentCard_Tapped(object sender, TappedRoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement { Tag: string path })
+            return;
+
+        e.Handled = true;
+        var opened = await App.MainWindow.OpenDocumentPathAsync(path);
+        if (!opened)
+            await RefreshRecentDocumentsAsync();
+    }
+
+    private static string FormatMeta(DateTimeOffset lastOpenedAt, int topicCount) =>
+        T(
+            $"{FormatRelative(lastOpenedAt)} · {topicCount} topics",
+            $"{FormatRelative(lastOpenedAt)} · {topicCount} 个主题",
+            $"{FormatRelative(lastOpenedAt)} · {topicCount} トピック");
+
+    private static string FormatRelative(DateTimeOffset value)
+    {
+        var local = value.ToLocalTime();
+        var today = DateTimeOffset.Now.Date;
+        if (local.Date == today)
+            return T("today", "今天", "今日");
+        if (local.Date == today.AddDays(-1))
+            return T("yesterday", "昨天", "昨日");
+        return local.ToString("yyyy-MM-dd");
+    }
+
+    private static Brush AccentBrush(int index) => index % 4 switch
+    {
+        1 => new SolidColorBrush(ColorHelper.FromArgb(255, 89, 176, 99)),
+        2 => new SolidColorBrush(ColorHelper.FromArgb(255, 242, 156, 41)),
+        3 => new SolidColorBrush(ColorHelper.FromArgb(255, 158, 84, 219)),
+        _ => new SolidColorBrush(ColorHelper.FromArgb(255, 8, 107, 194))
+    };
 
     private static string T(string en, string zh, string ja)
     {
@@ -46,4 +126,10 @@ public sealed partial class DocumentsPage : Page
             : language.StartsWith("ja", StringComparison.OrdinalIgnoreCase) ? ja
             : en;
     }
+
+    private sealed record RecentDocumentCard(
+        string Path,
+        string Title,
+        string Meta,
+        Brush AccentBrush);
 }
