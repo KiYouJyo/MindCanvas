@@ -6,6 +6,7 @@ public sealed class MindMapDocument
 
     public Guid Id { get; set; } = Guid.NewGuid();
     public int SchemaVersion { get; set; } = CurrentSchemaVersion;
+    public long Revision { get; set; }
     public string Title { get; set; } = "Untitled";
     public Guid RootNodeId { get; set; }
     public Dictionary<Guid, MindNode> Nodes { get; set; } = [];
@@ -247,5 +248,9 @@ public sealed class MindMapDocument
             Collect(child, output);
     }
 
-    private void Touch() => ModifiedAt = DateTimeOffset.UtcNow;
+    private void Touch()
+    {
+        Revision++;
+        ModifiedAt = DateTimeOffset.UtcNow;
+    }
 }
