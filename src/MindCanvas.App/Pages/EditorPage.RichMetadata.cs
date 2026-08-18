@@ -2,6 +2,8 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using MindCanvas.Core.Commands;
 using MindCanvas.Core.Documents;
+using Windows.Storage;
+using Windows.System;
 
 namespace MindCanvas.Pages;
 
@@ -112,64 +114,7 @@ public sealed partial class EditorPage
         _attachmentCards.Children.Clear();
 
         foreach (var attachment in node.Attachments)
-        {
-            var row = new Border
-            {
-                Height = 42,
-                CornerRadius = new CornerRadius(6),
-                BorderThickness = new Thickness(1),
-                BorderBrush = ResourceBrush("V4CardStrokeBrush", Microsoft.UI.Colors.LightGray),
-                Background = ResourceBrush("V4CardBackgroundBrush", Microsoft.UI.Colors.White),
-                Padding = new Thickness(8, 0, 8, 0)
-            };
-            var grid = new Grid { ColumnSpacing = 8 };
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-            var icon = new Border
-            {
-                Width = 24,
-                Height = 24,
-                CornerRadius = new CornerRadius(5),
-                Background = ResourceBrush("V4ControlSelectedBackgroundBrush", Microsoft.UI.ColorHelper.FromArgb(255, 231, 241, 251)),
-                Child = new TextBlock
-                {
-                    Text = attachment.Kind switch
-                    {
-                        NodeAttachmentKind.Image => "▧",
-                        NodeAttachmentKind.Link => "↗",
-                        _ => "▤"
-                    },
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    FontSize = 12
-                }
-            };
-            grid.Children.Add(icon);
-
-            var name = new TextBlock
-            {
-                Text = attachment.Name,
-                FontSize = 12,
-                VerticalAlignment = VerticalAlignment.Center,
-                TextTrimming = TextTrimming.CharacterEllipsis
-            };
-            Grid.SetColumn(name, 1);
-            grid.Children.Add(name);
-
-            var kind = new TextBlock
-            {
-                Text = attachment.Kind.ToString(),
-                FontSize = 10,
-                Opacity = 0.58,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            Grid.SetColumn(kind, 2);
-            grid.Children.Add(kind);
-            row.Child = grid;
-            _attachmentCards.Children.Add(row);
-        }
+            _attachmentCards.Children.Add(BuildAttachmentCard(nodeId, attachment));
 
         if (node.Attachments.Count == 0)
         {
@@ -180,5 +125,126 @@ public sealed partial class EditorPage
                 Opacity = 0.55
             });
         }
+    }
+
+    private Border BuildAttachmentCard(Guid nodeId, NodeAttachment attachment)
+    {
+        var row = new Border
+        {
+            MinHeight = 44,
+            CornerRadius = new CornerRadius(6),
+            BorderThickness = new Thickness(1),
+            BorderBrush = ResourceBrush("V4CardStrokeBrush", Microsoft.UI.Colors.LightGray),
+            Background = ResourceBrush("V4CardBackgroundBrush", Microsoft.UI.Colors.White),
+            Padding = new Thickness(8, 3, 5, 3)
+        };
+        var grid = new Grid { ColumnSpacing = 7 };
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(28) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        var icon = new Border
+        {
+            Width = 24,
+            Height = 24,
+            CornerRadius = new CornerRadius(5),
+            VerticalAlignment = VerticalAlignment.Center,
+            Background = ResourceBrush("V4ControlSelectedBackgroundBrush", Microsoft.UI.ColorHelper.FromArgb(255, 231, 241, 251)),
+            Child = new TextBlock
+            {
+                Text = attachment.Kind switch
+                {
+                    NodeAttachmentKind.Image => "▧",
+                    NodeAttachmentKind.Link => "↗",
+                    _ => "▤"
+                },
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                FontSize = 12
+            }
+        };
+        grid.Children.Add(icon);
+
+        var textStack = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Spacing = 1 };
+        textStack.Children.Add(new TextBlock
+        {
+            Text = attachment.Name,
+            FontSize = 12,
+            TextTrimming = TextTrimming.CharacterEllipsis
+        });
+        textStack.Children.Add(new TextBlock
+        {
+            Text = attachment.Kind.ToString(),
+            FontSize = 10,
+            Opacity = 0.52,
+            TextTrimming = TextTrimming.CharacterEllipsis
+        });
+        Grid.SetColumn(textStack, 1);
+        grid.Children.Add(textStack);
+
+        var open = new Button
+        {
+            Tag = attachment,
+            Width = 28,
+            Height = 28,
+            Padding = new Thickness(0),
+            Content = "↗",
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        ToolTipService.SetToolTip(open, T("Open attachment", "打开附件", "添付ファイルを開く"));
+        open.Click += OpenAttachment_Click;
+        Grid.SetColumn(open, 2);
+        grid.Children.Add(open);
+
+        var remove = new Button
+        {
+            Tag = (nodeId, attachment.Id),
+            Width = 28,
+            Height = 28,
+            Padding = new Thickness(0),
+            Content = "×",
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        ToolTipService.SetToolTip(remove, T("Remove attachment", "移除附件", "添付を削除"));
+        remove.Click += RemoveAttachment_Click;
+        Grid.SetColumn(remove, 3);
+        grid.Children.Add(remove);
+
+        row.Child = grid;
+        return row;
+    }
+
+    private async void OpenAttachment_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: NodeAttachment attachment })
+            return;
+
+        try
+        {
+            if (attachment.Kind == NodeAttachmentKind.Link && Uri.TryCreate(attachment.Target, UriKind.Absolute, out var uri))
+            {
+                await Launcher.LaunchUriAsync(uri);
+                return;
+            }
+
+            if (!File.Exists(attachment.Target))
+                return;
+            var file = await StorageFile.GetFileFromPathAsync(attachment.Target);
+            await Launcher.LaunchFileAsync(file);
+        }
+        catch
+        {
+            // Opening an attachment is best-effort; stale paths remain visible so users can remove them.
+        }
+    }
+
+    private void RemoveAttachment_Click(object sender, RoutedEventArgs e)
+    {
+        if (_document is null || _history is null || sender is not Button { Tag: ValueTuple<Guid, Guid> ids })
+            return;
+
+        _history.Execute(new RemoveNodeAttachmentCommand(_document, ids.Item1, ids.Item2));
+        NotifyMutation();
     }
 }
