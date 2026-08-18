@@ -15,12 +15,19 @@ public sealed partial class MainWindow
         _multiSelectionBridgeInitialized = true;
         RootFrame.Navigated += RootFrame_MultiSelectionNavigated;
         if (RootFrame.Content is EditorPage currentEditor)
-            currentEditor.InitializeMultiSelection();
+            InitializeEditorInteractions(currentEditor);
     }
 
     private static void RootFrame_MultiSelectionNavigated(object sender, NavigationEventArgs e)
     {
         if (e.Content is EditorPage editor)
-            editor.InitializeMultiSelection();
+            InitializeEditorInteractions(editor);
+    }
+
+    private static void InitializeEditorInteractions(EditorPage editor)
+    {
+        editor.InitializeMultiSelection();
+        editor.InitializeNodeReparentDrag();
+        editor.InitializeRichNodeMetadataUi();
     }
 }
