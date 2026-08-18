@@ -24,9 +24,47 @@ public sealed partial class MainWindow
                 _externalFileTracker.Accept(session.FilePath!);
         }
 
+        if (EditorActions.PrimaryCommands.Count > 2 && EditorActions.PrimaryCommands[2] is AppBarButton saveButton)
+        {
+            saveButton.Click -= SaveDocument_Click;
+            saveButton.Click += SafeSaveDocument_Click;
+        }
+
         _externalFileTimer.Tick += ExternalFileTimer_Tick;
         _externalFileTimer.Start();
         Activated += MainWindow_ExternalFileActivated;
+    }
+
+    private async void SafeSaveDocument_Click(object sender, RoutedEventArgs e)
+    {
+        var session = CurrentSession;
+        if (session is null)
+            return;
+
+        if (string.IsNullOrWhiteSpace(session.FilePath))
+        {
+            await SaveAsAsync(session);
+            if (!string.IsNullOrWhiteSpace(session.FilePath))
+            {
+                AcceptExternalFileVersion(session.FilePath!);
+                _functionalSavedVersions[session.Document.Id] = session.Document.ModifiedAt;
+                if (_recentDocumentStore is not null)
+                    await _recentDocumentStore.RecordAsync(session.FilePath!, session.Document.Title);
+            }
+            return;
+        }
+
+        if (!IsExternalFileWriteSafe(session.FilePath!))
+        {
+            await CheckExternalFilesAsync();
+            return;
+        }
+
+        await App.FileService.SaveAsync(session.Document, session.FilePath!);
+        AcceptExternalFileVersion(session.FilePath!);
+        _functionalSavedVersions[session.Document.Id] = session.Document.ModifiedAt;
+        if (_recentDocumentStore is not null)
+            await _recentDocumentStore.RecordAsync(session.FilePath!, session.Document.Title);
     }
 
     private async void MainWindow_ExternalFileActivated(object sender, WindowActivatedEventArgs args)
