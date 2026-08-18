@@ -13,6 +13,8 @@ public sealed class UpdateNodeDetailsCommand(
 {
     private NodeDetailsSnapshot? _before;
 
+    public string Description => "Update node details";
+
     public void Execute()
     {
         _before ??= NodeDetailsSnapshot.Capture(document.GetNode(nodeId));
