@@ -1,4 +1,5 @@
 using Microsoft.UI;
+using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -60,7 +61,7 @@ public sealed partial class EditorPage
 
     private void NodeDrag_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
-        if (_document is null || _history is null || e.Pointer.PointerDeviceType is not Windows.Devices.Input.PointerDeviceType.Mouse)
+        if (_document is null || _history is null || e.Pointer.PointerDeviceType is not PointerDeviceType.Mouse)
             return;
 
         var point = e.GetCurrentPoint(MapCanvas);
@@ -134,7 +135,7 @@ public sealed partial class EditorPage
         _nodeDragCompleting = true;
         try
         {
-            var copy = (Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Menu) & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down;
+            var copy = (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Menu) & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down;
             if (copy)
             {
                 var template = NodeSubtreeTemplate.Capture(_document, sourceId);
