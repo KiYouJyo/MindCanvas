@@ -3,8 +3,9 @@ using MindCanvas.Core.Documents;
 namespace MindCanvas.Core.Commands;
 
 /// <summary>
-/// Inserts a document-independent subtree with fresh IDs. Undo removes the
-/// inserted subtree; redo restores the same generated IDs and sibling order.
+/// Inserts a document-independent subtree with fresh node and attachment IDs.
+/// Undo removes the inserted subtree; redo restores the same generated IDs and
+/// sibling order that were produced by the first execution.
 /// </summary>
 public sealed class InsertSubtreeCommand(
     MindMapDocument document,
@@ -50,9 +51,21 @@ public sealed class InsertSubtreeCommand(
     private Guid Insert(NodeSubtreeTemplate source, Guid targetParentId, int? targetIndex)
     {
         var node = document.AddChild(targetParentId, source.Title, targetIndex);
-        node.Notes = source.Notes;
-        node.Hyperlink = source.Hyperlink;
-        node.IsCollapsed = source.IsCollapsed;
+        document.SetNodeNotes(node.Id, source.Notes);
+        document.SetNodeHyperlink(node.Id, source.Hyperlink);
+        document.SetNodePriority(node.Id, source.Priority);
+        document.SetNodeTags(node.Id, source.Tags);
+        document.SetNodeMarkers(node.Id, source.Markers);
+        foreach (var attachment in source.Attachments)
+        {
+            document.AddNodeAttachment(
+                node.Id,
+                attachment.Kind,
+                attachment.Name,
+                attachment.Target,
+                attachment.IsLinked);
+        }
+        document.SetNodeCollapsed(node.Id, source.IsCollapsed);
 
         foreach (var child in source.Children)
             Insert(child, node.Id, null);
