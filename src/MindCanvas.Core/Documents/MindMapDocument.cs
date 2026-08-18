@@ -2,7 +2,7 @@ namespace MindCanvas.Core.Documents;
 
 public sealed class MindMapDocument
 {
-    public const int CurrentSchemaVersion = 1;
+    public const int CurrentSchemaVersion = 2;
 
     public Guid Id { get; set; } = Guid.NewGuid();
     public int SchemaVersion { get; set; } = CurrentSchemaVersion;
@@ -51,6 +51,54 @@ public sealed class MindMapDocument
         if (nodeId == RootNodeId)
             Title = string.IsNullOrWhiteSpace(title) ? Title : title;
         Touch();
+    }
+
+    public void SetNodeNotes(Guid nodeId, string? notes)
+    {
+        GetNode(nodeId).Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim();
+        Touch();
+    }
+
+    public void SetNodeHyperlink(Guid nodeId, string? hyperlink)
+    {
+        GetNode(nodeId).Hyperlink = string.IsNullOrWhiteSpace(hyperlink) ? null : hyperlink.Trim();
+        Touch();
+    }
+
+    public void SetNodePriority(Guid nodeId, NodePriority priority)
+    {
+        GetNode(nodeId).Priority = priority;
+        Touch();
+    }
+
+    public void SetNodeTags(Guid nodeId, IEnumerable<string> tags)
+    {
+        GetNode(nodeId).Tags = NormalizeLabels(tags);
+        Touch();
+    }
+
+    public void SetNodeMarkers(Guid nodeId, IEnumerable<string> markers)
+    {
+        GetNode(nodeId).Markers = NormalizeLabels(markers);
+        Touch();
+    }
+
+    public NodeAttachment AddNodeAttachment(Guid nodeId, NodeAttachmentKind kind, string name, string target, bool isLinked = true)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(target);
+        var attachment = NodeAttachment.Create(kind, name.Trim(), target.Trim(), isLinked);
+        GetNode(nodeId).Attachments.Add(attachment);
+        Touch();
+        return attachment;
+    }
+
+    public bool RemoveNodeAttachment(Guid nodeId, Guid attachmentId)
+    {
+        var removed = GetNode(nodeId).Attachments.RemoveAll(item => item.Id == attachmentId) > 0;
+        if (removed)
+            Touch();
+        return removed;
     }
 
     public void SetNodeCollapsed(Guid nodeId, bool isCollapsed)
@@ -171,6 +219,13 @@ public sealed class MindMapDocument
         if (visited.Count != Nodes.Count)
             throw new InvalidDataException("The document contains unreachable nodes.");
     }
+
+    private static List<string> NormalizeLabels(IEnumerable<string> labels) =>
+        labels.Where(label => !string.IsNullOrWhiteSpace(label))
+            .Select(label => label.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(label => label, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
 
     private bool IsDescendant(Guid candidateId, Guid ancestorId)
     {
