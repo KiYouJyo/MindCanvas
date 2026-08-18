@@ -30,13 +30,6 @@ public sealed class RemoveNodeAttachmentCommand(
     {
         if (_removed is null)
             return;
-
-        var node = document.GetNode(nodeId);
-        if (node.Attachments.Any(item => item.Id == _removed.Id))
-            return;
-
-        var index = Math.Clamp(_index, 0, node.Attachments.Count);
-        node.Attachments.Insert(index, _removed);
-        document.TouchExternalMutation();
+        document.InsertNodeAttachment(nodeId, _removed, _index);
     }
 }
