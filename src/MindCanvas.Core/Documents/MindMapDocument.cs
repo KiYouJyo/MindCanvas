@@ -94,6 +94,19 @@ public sealed class MindMapDocument
         return attachment;
     }
 
+    public void InsertNodeAttachment(Guid nodeId, NodeAttachment attachment, int? index = null)
+    {
+        ArgumentNullException.ThrowIfNull(attachment);
+        var node = GetNode(nodeId);
+        if (node.Attachments.Any(item => item.Id == attachment.Id))
+            return;
+        if (index is >= 0 && index <= node.Attachments.Count)
+            node.Attachments.Insert(index.Value, attachment);
+        else
+            node.Attachments.Add(attachment);
+        Touch();
+    }
+
     public bool RemoveNodeAttachment(Guid nodeId, Guid attachmentId)
     {
         var removed = GetNode(nodeId).Attachments.RemoveAll(item => item.Id == attachmentId) > 0;
