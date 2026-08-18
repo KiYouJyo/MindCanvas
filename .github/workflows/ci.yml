@@ -26,14 +26,20 @@ jobs:
         shell: pwsh
         run: |
           dotnet restore tests/MindCanvas.Core.Tests/MindCanvas.Core.Tests.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet restore tests/MindCanvas.Layout.Tests/MindCanvas.Layout.Tests.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet restore tests/MindCanvas.Storage.Tests/MindCanvas.Storage.Tests.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Test core libraries
         shell: pwsh
         run: |
           dotnet test tests/MindCanvas.Core.Tests/MindCanvas.Core.Tests.csproj -c Release --no-restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet test tests/MindCanvas.Layout.Tests/MindCanvas.Layout.Tests.csproj -c Release --no-restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet test tests/MindCanvas.Storage.Tests/MindCanvas.Storage.Tests.csproj -c Release --no-restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Restore WinUI application
         shell: pwsh
         run: dotnet restore src/MindCanvas.App/MindCanvas.App.csproj -p:Platform=x64 -r win-x64
@@ -62,7 +68,9 @@ jobs:
         run: |
           $out=Join-Path $env:RUNNER_TEMP 'AppPackages'
           dotnet restore src/MindCanvas.App/MindCanvas.App.csproj -p:Platform=x64 -r win-x64
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet build src/MindCanvas.App/MindCanvas.App.csproj -c Release -p:Platform=x64 -r win-x64 -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false -p:AppxBundle=Always -p:AppxBundlePlatforms=x64 -p:UapAppxPackageBuildMode=SideloadOnly -p:AppxPackageDir="$out\" --no-restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $bundle=Get-ChildItem $out -Recurse -Filter '*.msixbundle'|Select-Object -First 1
           if(-not $bundle){throw 'MSIX bundle was not produced.'}
 
