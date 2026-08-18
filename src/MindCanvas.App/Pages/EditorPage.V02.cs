@@ -26,6 +26,7 @@ public sealed partial class EditorPage
         KeyDown += EditorSurfaceV02_KeyDown;
         ZoomText.Text = $"{MapScrollViewer.ZoomFactor * 100:0}%";
         FitViewButton.Content = T("Fit", "适应", "全体");
+        InitializeFunctionalFoundation();
     }
 
     public bool CopySelected()
