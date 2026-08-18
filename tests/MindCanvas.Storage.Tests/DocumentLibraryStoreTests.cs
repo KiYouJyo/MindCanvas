@@ -127,6 +127,89 @@ public sealed class DocumentLibraryStoreTests
         }
     }
 
+    [Fact]
+    public async Task Permanent_library_is_not_limited_by_recent_history_capacity()
+    {
+        var root = TempRoot();
+        Directory.CreateDirectory(root);
+        try
+        {
+            var store = new DocumentLibraryStore(Path.Combine(root, "library.json"));
+            var entries = new List<RecentDocumentEntry>();
+            for (var index = 0; index < 32; index++)
+            {
+                var path = Path.Combine(root, $"doc-{index:00}.mcanvas");
+                await File.WriteAllTextAsync(path, "{}", TestContext.Current.CancellationToken);
+                entries.Add(new RecentDocumentEntry(path, $"Document {index}", DateTimeOffset.UtcNow.AddMinutes(index)));
+            }
+
+            var state = await store.MergeRecentDocumentsAsync(entries, TestContext.Current.CancellationToken);
+
+            Assert.Equal(32, state.Documents.Count);
+            Assert.Equal("Document 31", state.Documents[0].Title);
+        }
+        finally
+        {
+            DeleteRoot(root);
+        }
+    }
+
+    [Fact]
+    public async Task Merging_same_path_updates_one_entry_and_keeps_latest_open_time()
+    {
+        var root = TempRoot();
+        Directory.CreateDirectory(root);
+        var documentPath = Path.Combine(root, "same.mcanvas");
+        await File.WriteAllTextAsync(documentPath, "{}", TestContext.Current.CancellationToken);
+        try
+        {
+            var store = new DocumentLibraryStore(Path.Combine(root, "library.json"));
+            var older = DateTimeOffset.UtcNow.AddDays(-2);
+            var newer = DateTimeOffset.UtcNow;
+
+            await store.MergeRecentDocumentsAsync(
+                [new RecentDocumentEntry(documentPath, "Old title", older)],
+                TestContext.Current.CancellationToken);
+            var state = await store.MergeRecentDocumentsAsync(
+                [new RecentDocumentEntry(documentPath.ToUpperInvariant(), "New title", newer)],
+                TestContext.Current.CancellationToken);
+
+            var entry = Assert.Single(state.Documents);
+            Assert.Equal("New title", entry.Title);
+            Assert.Equal(newer, entry.LastOpenedAt);
+            Assert.True(string.Equals(Path.GetFullPath(documentPath), entry.Path, StringComparison.OrdinalIgnoreCase));
+        }
+        finally
+        {
+            DeleteRoot(root);
+        }
+    }
+
+    [Fact]
+    public async Task Removing_missing_document_cleans_permanent_entry_and_assignment()
+    {
+        var root = TempRoot();
+        Directory.CreateDirectory(root);
+        var documentPath = Path.Combine(root, "indexed.mcanvas");
+        await File.WriteAllTextAsync(documentPath, "{}", TestContext.Current.CancellationToken);
+        try
+        {
+            var store = new DocumentLibraryStore(Path.Combine(root, "library.json"));
+            await store.RecordDocumentAsync(documentPath, "Indexed", cancellationToken: TestContext.Current.CancellationToken);
+            await store.AssignAsync(documentPath, DocumentLibraryFolderIds.Research, TestContext.Current.CancellationToken);
+            File.Delete(documentPath);
+
+            var state = await store.RemoveMissingDocumentsAsync(TestContext.Current.CancellationToken);
+
+            Assert.Empty(state.Documents);
+            Assert.Empty(state.Assignments);
+        }
+        finally
+        {
+            DeleteRoot(root);
+        }
+    }
+
     private static string TempRoot() =>
         Path.Combine(Path.GetTempPath(), "MindCanvas.Tests", Guid.NewGuid().ToString("N"));
 
