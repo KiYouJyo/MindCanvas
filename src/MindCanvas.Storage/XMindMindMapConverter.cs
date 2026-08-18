@@ -1,6 +1,6 @@
 using System.IO.Compression;
-using System.Text;
 using System.Text.Json;
+using System.Xml.Linq;
 using MindCanvas.Core.Documents;
 
 namespace MindCanvas.Storage;
@@ -55,7 +55,15 @@ public sealed class XMindMindMapConverter
     {
         await using var stream = File.OpenRead(path);
         using var archive = new ZipArchive(stream, ZipArchiveMode.Read, leaveOpen: false);
-        var entry = archive.GetEntry("content.json") ?? throw new InvalidDataException("The XMind package has no content.json entry.");
+        if (archive.GetEntry("content.json") is { } jsonEntry)
+            return await ImportModernAsync(jsonEntry, cancellationToken);
+        if (archive.GetEntry("content.xml") is { } xmlEntry)
+            return await ImportLegacyAsync(xmlEntry, cancellationToken);
+        throw new InvalidDataException("The XMind package contains neither content.json nor legacy content.xml.");
+    }
+
+    private static async Task<MindMapDocument> ImportModernAsync(ZipArchiveEntry entry, CancellationToken cancellationToken)
+    {
         await using var content = entry.Open();
         var sheets = await JsonSerializer.DeserializeAsync<XMindSheet[]>(content, JsonOptions, cancellationToken)
             ?? throw new InvalidDataException("The XMind content is empty.");
@@ -64,17 +72,58 @@ public sealed class XMindMindMapConverter
         var rootTopic = sheet.RootTopic!;
         var document = MindMapDocument.Create(string.IsNullOrWhiteSpace(rootTopic.Title) ? sheet.Title ?? "Imported XMind" : rootTopic.Title);
         Apply(document.Root, rootTopic);
-        ImportChildren(rootTopic, document.RootNodeId);
+        ImportChildren(rootTopic, document, document.RootNodeId);
         document.SchemaVersion = MindMapDocument.CurrentSchemaVersion;
         return document;
+    }
 
-        void ImportChildren(XMindTopic source, Guid parentId)
+    private static async Task<MindMapDocument> ImportLegacyAsync(ZipArchiveEntry entry, CancellationToken cancellationToken)
+    {
+        await using var content = entry.Open();
+        var xml = await XDocument.LoadAsync(content, LoadOptions.None, cancellationToken);
+        var sheet = xml.Descendants().FirstOrDefault(element => element.Name.LocalName == "sheet")
+            ?? throw new InvalidDataException("The legacy XMind package has no sheet.");
+        var rootTopic = sheet.Elements().FirstOrDefault(element => element.Name.LocalName == "topic")
+            ?? sheet.Descendants().FirstOrDefault(element => element.Name.LocalName == "topic")
+            ?? throw new InvalidDataException("The legacy XMind sheet has no root topic.");
+        var sheetTitle = ChildValue(sheet, "title");
+        var rootTitle = ChildValue(rootTopic, "title");
+        var document = MindMapDocument.Create(string.IsNullOrWhiteSpace(rootTitle) ? sheetTitle ?? "Imported XMind" : rootTitle!);
+        ApplyLegacy(document.Root, rootTopic);
+        ImportLegacyChildren(rootTopic, document, document.RootNodeId);
+        document.SchemaVersion = MindMapDocument.CurrentSchemaVersion;
+        return document;
+    }
+
+    private static void ImportChildren(XMindTopic source, MindMapDocument document, Guid parentId)
+    {
+        foreach (var childTopic in source.Children?.Attached ?? [])
         {
-            foreach (var childTopic in source.Children?.Attached ?? [])
+            var child = document.AddChild(parentId, string.IsNullOrWhiteSpace(childTopic.Title) ? "Untitled" : childTopic.Title);
+            Apply(child, childTopic);
+            ImportChildren(childTopic, document, child.Id);
+        }
+    }
+
+    private static void ImportLegacyChildren(XElement source, MindMapDocument document, Guid parentId)
+    {
+        var childrenContainer = source.Elements().FirstOrDefault(element => element.Name.LocalName == "children");
+        if (childrenContainer is null)
+            return;
+
+        var topicsGroups = childrenContainer.Elements().Where(element => element.Name.LocalName == "topics");
+        foreach (var group in topicsGroups)
+        {
+            var type = group.Attributes().FirstOrDefault(attribute => attribute.Name.LocalName == "type")?.Value;
+            if (!string.IsNullOrWhiteSpace(type) && !type.Equals("attached", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            foreach (var childTopic in group.Elements().Where(element => element.Name.LocalName == "topic"))
             {
-                var child = document.AddChild(parentId, string.IsNullOrWhiteSpace(childTopic.Title) ? "Untitled" : childTopic.Title);
-                Apply(child, childTopic);
-                ImportChildren(childTopic, child.Id);
+                var title = ChildValue(childTopic, "title");
+                var child = document.AddChild(parentId, string.IsNullOrWhiteSpace(title) ? "Untitled" : title!);
+                ApplyLegacy(child, childTopic);
+                ImportLegacyChildren(childTopic, document, child.Id);
             }
         }
     }
@@ -84,6 +133,16 @@ public sealed class XMindMindMapConverter
         node.Notes = topic.Notes?.Plain?.Content;
         node.Hyperlink = topic.Href;
     }
+
+    private static void ApplyLegacy(MindNode node, XElement topic)
+    {
+        var notes = topic.Elements().FirstOrDefault(element => element.Name.LocalName == "notes");
+        node.Notes = notes?.Descendants().FirstOrDefault(element => element.Name.LocalName == "plain")?.Value?.Trim();
+        node.Hyperlink = topic.Attributes().FirstOrDefault(attribute => attribute.Name.LocalName == "href")?.Value;
+    }
+
+    private static string? ChildValue(XElement parent, string localName) =>
+        parent.Elements().FirstOrDefault(element => element.Name.LocalName == localName)?.Value?.Trim();
 
     private static async Task WriteJsonEntryAsync<T>(ZipArchive archive, string name, T value, CancellationToken cancellationToken)
     {
