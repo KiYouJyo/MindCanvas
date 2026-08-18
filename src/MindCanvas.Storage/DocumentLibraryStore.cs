@@ -195,19 +195,25 @@ public sealed class DocumentLibraryStore(string indexPath)
         CancellationToken cancellationToken = default)
     {
         var state = await LoadAsync(cancellationToken);
-        var missing = state.Documents
-            .Where(entry => !File.Exists(entry.Path))
-            .Select(entry => entry.Path)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var changed = false;
 
-        if (missing.Count == 0)
-            return state;
+        foreach (var entry in state.Documents.Where(entry => !File.Exists(entry.Path)).ToArray())
+        {
+            state.Documents.Remove(entry);
+            state.Assignments.Remove(entry.Path);
+            changed = true;
+        }
 
-        state.Documents.RemoveAll(entry => missing.Contains(entry.Path));
-        foreach (var path in state.Assignments.Keys.Where(missing.Contains).ToArray())
+        foreach (var path in state.Assignments.Keys.ToArray())
+        {
+            if (File.Exists(path))
+                continue;
             state.Assignments.Remove(path);
+            changed = true;
+        }
 
-        await SaveAsync(state, cancellationToken);
+        if (changed)
+            await SaveAsync(state, cancellationToken);
         return state;
     }
 
