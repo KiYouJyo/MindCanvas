@@ -17,8 +17,14 @@ public sealed record CustomDocumentFolder(
     string Name,
     DateTimeOffset CreatedAt);
 
+public sealed record DocumentLibraryEntry(
+    string Path,
+    string Title,
+    DateTimeOffset LastOpenedAt);
+
 public sealed class DocumentLibraryState
 {
+    public List<DocumentLibraryEntry> Documents { get; set; } = [];
     public List<CustomDocumentFolder> CustomFolders { get; set; } = [];
     public Dictionary<string, string> Assignments { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }
@@ -49,6 +55,60 @@ public sealed class DocumentLibraryStore(string indexPath)
         {
             return new DocumentLibraryState();
         }
+    }
+
+    public async Task<DocumentLibraryState> MergeRecentDocumentsAsync(
+        IEnumerable<RecentDocumentEntry> recentDocuments,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(recentDocuments);
+        var state = await LoadAsync(cancellationToken);
+        var byPath = state.Documents.ToDictionary(entry => entry.Path, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var recent in recentDocuments)
+        {
+            if (!TryNormalizePath(recent.Path, out var fullPath))
+                continue;
+
+            if (byPath.TryGetValue(fullPath, out var existing))
+            {
+                byPath[fullPath] = existing with
+                {
+                    Title = string.IsNullOrWhiteSpace(recent.Title) ? existing.Title : recent.Title.Trim(),
+                    LastOpenedAt = recent.LastOpenedAt > existing.LastOpenedAt
+                        ? recent.LastOpenedAt
+                        : existing.LastOpenedAt
+                };
+            }
+            else
+            {
+                byPath[fullPath] = new DocumentLibraryEntry(
+                    fullPath,
+                    string.IsNullOrWhiteSpace(recent.Title) ? Path.GetFileNameWithoutExtension(fullPath) : recent.Title.Trim(),
+                    recent.LastOpenedAt);
+            }
+        }
+
+        state.Documents = byPath.Values
+            .OrderByDescending(entry => entry.LastOpenedAt)
+            .ThenBy(entry => entry.Title, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+        await SaveAsync(state, cancellationToken);
+        return state;
+    }
+
+    public async Task<DocumentLibraryState> RecordDocumentAsync(
+        string documentPath,
+        string title,
+        DateTimeOffset? lastOpenedAt = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(documentPath);
+        var entry = new RecentDocumentEntry(
+            Path.GetFullPath(documentPath),
+            title,
+            lastOpenedAt ?? DateTimeOffset.UtcNow);
+        return await MergeRecentDocumentsAsync([entry], cancellationToken);
     }
 
     public async Task<CustomDocumentFolder> CreateFolderAsync(
@@ -135,17 +195,19 @@ public sealed class DocumentLibraryStore(string indexPath)
         CancellationToken cancellationToken = default)
     {
         var state = await LoadAsync(cancellationToken);
-        var changed = false;
-        foreach (var path in state.Assignments.Keys.ToArray())
-        {
-            if (File.Exists(path))
-                continue;
-            state.Assignments.Remove(path);
-            changed = true;
-        }
+        var missing = state.Documents
+            .Where(entry => !File.Exists(entry.Path))
+            .Select(entry => entry.Path)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        if (changed)
-            await SaveAsync(state, cancellationToken);
+        if (missing.Count == 0)
+            return state;
+
+        state.Documents.RemoveAll(entry => missing.Contains(entry.Path));
+        foreach (var path in state.Assignments.Keys.Where(missing.Contains).ToArray())
+            state.Assignments.Remove(path);
+
+        await SaveAsync(state, cancellationToken);
         return state;
     }
 
@@ -160,8 +222,37 @@ public sealed class DocumentLibraryStore(string indexPath)
 
     private static void Normalize(DocumentLibraryState state)
     {
+        state.Documents ??= [];
+        state.CustomFolders ??= [];
+        state.Assignments ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        var normalizedDocuments = new Dictionary<string, DocumentLibraryEntry>(StringComparer.OrdinalIgnoreCase);
+        foreach (var entry in state.Documents)
+        {
+            if (entry is null || !TryNormalizePath(entry.Path, out var fullPath))
+                continue;
+
+            var normalized = entry with
+            {
+                Path = fullPath,
+                Title = string.IsNullOrWhiteSpace(entry.Title)
+                    ? Path.GetFileNameWithoutExtension(fullPath)
+                    : entry.Title.Trim()
+            };
+
+            if (!normalizedDocuments.TryGetValue(fullPath, out var existing) ||
+                normalized.LastOpenedAt >= existing.LastOpenedAt)
+            {
+                normalizedDocuments[fullPath] = normalized;
+            }
+        }
+        state.Documents = normalizedDocuments.Values
+            .OrderByDescending(entry => entry.LastOpenedAt)
+            .ThenBy(entry => entry.Title, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+
         state.CustomFolders = state.CustomFolders
-            .Where(folder => !string.IsNullOrWhiteSpace(folder.Id) && !string.IsNullOrWhiteSpace(folder.Name))
+            .Where(folder => folder is not null && !string.IsNullOrWhiteSpace(folder.Id) && !string.IsNullOrWhiteSpace(folder.Name))
             .GroupBy(folder => folder.Id, StringComparer.Ordinal)
             .Select(group => group.First() with { Name = group.First().Name.Trim() })
             .OrderBy(folder => folder.CreatedAt)
@@ -179,15 +270,26 @@ public sealed class DocumentLibraryStore(string indexPath)
                 !validCustomIds.Contains(folderId))
                 continue;
 
-            try
-            {
-                normalizedAssignments[Path.GetFullPath(pair.Key)] = folderId;
-            }
-            catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
-            {
-                // Ignore stale or malformed paths from an older/corrupt local index.
-            }
+            if (TryNormalizePath(pair.Key, out var fullPath))
+                normalizedAssignments[fullPath] = folderId;
         }
         state.Assignments = normalizedAssignments;
+    }
+
+    private static bool TryNormalizePath(string? path, out string fullPath)
+    {
+        fullPath = string.Empty;
+        if (string.IsNullOrWhiteSpace(path))
+            return false;
+
+        try
+        {
+            fullPath = Path.GetFullPath(path);
+            return true;
+        }
+        catch (Exception exception) when (exception is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            return false;
+        }
     }
 }
