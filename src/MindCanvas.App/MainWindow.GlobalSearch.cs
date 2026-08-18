@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using MindCanvas.Core.Search;
+using MindCanvas.Storage;
 
 namespace MindCanvas;
 
@@ -172,26 +173,44 @@ public sealed partial class MainWindow
             .ToList();
         var knownIds = sources.Select(source => source.Document.Id).ToHashSet();
 
-        if (_recentDocumentStore is null)
-            return sources;
+        var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        var appData = Path.Combine(local, "MindCanvas");
+        var recentStore = _recentDocumentStore ?? new RecentDocumentStore(
+            Path.Combine(appData, "recent-documents.json"),
+            capacity: 20);
+        var libraryStore = _documentLibraryStore ?? new DocumentLibraryStore(
+            Path.Combine(appData, "document-library.json"));
 
-        foreach (var recent in (await _recentDocumentStore.LoadAsync()).Take(16))
+        try
         {
-            if (generation != _globalSearchGeneration)
-                return sources;
-            if (!File.Exists(recent.Path))
-                continue;
-            try
+            var recent = await recentStore.RemoveMissingAsync();
+            await libraryStore.MergeRecentDocumentsAsync(recent);
+            var library = await libraryStore.RemoveMissingDocumentsAsync();
+
+            foreach (var entry in library.Documents.OrderByDescending(item => item.LastOpenedAt))
             {
-                var document = await App.FileService.LoadAsync(recent.Path);
-                if (knownIds.Add(document.Id))
-                    sources.Add(new DocumentSearchSource(document, recent.Path));
-            }
-            catch
-            {
-                // A stale or incompatible recent item must not break search/tag aggregation.
+                if (generation != _globalSearchGeneration)
+                    return sources;
+                if (!File.Exists(entry.Path))
+                    continue;
+
+                try
+                {
+                    var document = await App.FileService.LoadAsync(entry.Path);
+                    if (knownIds.Add(document.Id))
+                        sources.Add(new DocumentSearchSource(document, entry.Path));
+                }
+                catch
+                {
+                    // A stale or incompatible library item must not break search/tag aggregation.
+                }
             }
         }
+        catch
+        {
+            // The permanent library is an auxiliary local index; open documents remain searchable.
+        }
+
         return sources;
     }
 
@@ -208,15 +227,8 @@ public sealed partial class MainWindow
         }
         else if (!string.IsNullOrWhiteSpace(hit.SourcePath) && File.Exists(hit.SourcePath))
         {
-            try
-            {
-                var document = await App.FileService.LoadAsync(hit.SourcePath);
-                AddDocument(document, hit.SourcePath);
-            }
-            catch
-            {
+            if (!await OpenDocumentPathAsync(hit.SourcePath))
                 return;
-            }
         }
         else
         {
