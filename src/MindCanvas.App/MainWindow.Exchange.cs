@@ -49,7 +49,7 @@ public sealed partial class MainWindow
 
         var picker = new FileOpenPicker();
         InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(this));
-        foreach (var extension in new[] { ".mcanvas", ".md", ".markdown", ".opml" })
+        foreach (var extension in new[] { ".mcanvas", ".md", ".markdown", ".opml", ".mm", ".mmd", ".mermaid", ".xmind" })
             picker.FileTypeFilter.Add(extension);
         var file = await picker.PickSingleFileAsync();
         if (file is null)
@@ -81,6 +81,9 @@ public sealed partial class MainWindow
         InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(this));
         picker.SuggestedFileName = session.Document.Title;
         picker.FileTypeChoices.Add("MindCanvas", new List<string> { ".mcanvas" });
+        picker.FileTypeChoices.Add("XMind", new List<string> { ".xmind" });
+        picker.FileTypeChoices.Add("FreeMind", new List<string> { ".mm" });
+        picker.FileTypeChoices.Add("Mermaid mindmap", new List<string> { ".mmd" });
         picker.FileTypeChoices.Add("Markdown", new List<string> { ".md" });
         picker.FileTypeChoices.Add("OPML", new List<string> { ".opml" });
         picker.FileTypeChoices.Add("SVG", new List<string> { ".svg" });
@@ -96,6 +99,10 @@ public sealed partial class MainWindow
             switch (extension)
             {
                 case ".mcanvas":
+                case ".xmind":
+                case ".mm":
+                case ".mmd":
+                case ".mermaid":
                 case ".md":
                 case ".opml":
                     await _exchangeService.ExportAsync(session.Document, file.Path);
