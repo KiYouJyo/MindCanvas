@@ -44,6 +44,7 @@ public partial class App : Application
             MainWindow.Activate();
             _ = MainWindow.InitializeFunctionalFoundationAsync();
             MainWindow.InitializeGlobalSearch();
+            MainWindow.InitializeExchangeCommands();
             StartupDiagnostics.Write("MainWindow activated.");
         }
         catch (Exception ex)
