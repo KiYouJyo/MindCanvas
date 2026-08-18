@@ -16,6 +16,20 @@ public sealed class RightLogicLayoutStrategy : ILayoutStrategy
 
     public LayoutSnapshot Arrange(MindMapDocument document)
     {
+        var source = LayoutRuntime.FocusRootNodeId is Guid focusId && document.Nodes.ContainsKey(focusId)
+            ? DocumentProjection.CreateFocused(document, focusId)
+            : document;
+
+        return LayoutRuntime.CurrentId switch
+        {
+            "mindmap-balanced" => new BalancedMindMapLayoutStrategy().Arrange(source),
+            "logic-down" => new DownLogicLayoutStrategy().Arrange(source),
+            _ => ArrangeRight(source)
+        };
+    }
+
+    private static LayoutSnapshot ArrangeRight(MindMapDocument document)
+    {
         document.Validate();
         var subtreeHeights = new Dictionary<Guid, double>();
         double Measure(Guid id)
