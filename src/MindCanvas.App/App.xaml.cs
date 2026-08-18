@@ -43,6 +43,7 @@ public partial class App : Application
             StartupDiagnostics.Write("MainWindow constructed.");
             MainWindow.Activate();
             _ = MainWindow.InitializeFunctionalFoundationAsync();
+            MainWindow.InitializeDocumentLibraryIndex();
             MainWindow.InitializeGlobalSearch();
             MainWindow.InitializeExchangeCommands();
             MainWindow.InitializeMultiSelectionBridge();
