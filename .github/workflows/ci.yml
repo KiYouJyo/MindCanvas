@@ -49,7 +49,7 @@ jobs:
 
   acceptance-package:
     needs: build-test
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, '[acceptance]')) }}
     runs-on: windows-2025-vs2026
     timeout-minutes: 30
     steps:
@@ -124,7 +124,9 @@ jobs:
           Write-Host "PowerShell trust status (informational): $($signature.Status)"
 
           $root=& ./packaging/New-GitHubOneClickInstallerPackage.ps1 -SignedBundlePath $env:BUNDLE_PATH -PublicCertificatePath $cer -OutputDirectory (Join-Path $work 'staging') -DisplayVersion $env:DISPLAY_VERSION -Architecture x64
+          if($LASTEXITCODE-ne 0){throw "New-GitHubOneClickInstallerPackage failed: $LASTEXITCODE"}
           & ./packaging/Test-GitHubOneClickInstallerPackage.ps1 -ReleaseDirectory $root
+          if($LASTEXITCODE-ne 0){throw "Test-GitHubOneClickInstallerPackage failed: $LASTEXITCODE"}
           $zip=Join-Path $work "MindCanvas-v$($env:DISPLAY_VERSION)-x64-one-click-acceptance.zip"
           Compress-Archive -LiteralPath $root -DestinationPath $zip -CompressionLevel Optimal
           $hash=(Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
