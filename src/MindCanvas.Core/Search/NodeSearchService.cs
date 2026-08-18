@@ -42,16 +42,15 @@ public sealed class NodeSearchService
     {
         options ??= new NodeSearchOptions();
         query = query?.Trim() ?? string.Empty;
-        if (query.Length == 0 || options.MaxResults <= 0)
-            return [];
-
         var requiredTags = (options.RequiredTags ?? [])
             .Where(tag => !string.IsNullOrWhiteSpace(tag))
             .Select(tag => tag.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
-        var results = new List<NodeSearchHit>();
+        if ((query.Length == 0 && requiredTags.Length == 0) || options.MaxResults <= 0)
+            return [];
 
+        var results = new List<NodeSearchHit>();
         foreach (var source in sources)
         {
             var document = source.Document;
@@ -62,16 +61,23 @@ public sealed class NodeSearchService
                     requiredTags.Any(tag => !node.Tags.Contains(tag, StringComparer.OrdinalIgnoreCase)))
                     continue;
 
-                if (options.IncludeTitles && Contains(node.Title, query))
-                    Add(NodeSearchField.Title, node.Title);
-
-                if (options.IncludeNotes && !string.IsNullOrWhiteSpace(node.Notes) && Contains(node.Notes, query))
-                    Add(NodeSearchField.Notes, Snippet(node.Notes!, query));
-
-                if (options.IncludeTags)
+                if (query.Length == 0)
                 {
-                    foreach (var tag in node.Tags.Where(tag => Contains(tag, query)))
-                        Add(NodeSearchField.Tag, tag);
+                    Add(NodeSearchField.Tag, string.Join(", ", requiredTags));
+                }
+                else
+                {
+                    if (options.IncludeTitles && Contains(node.Title, query))
+                        Add(NodeSearchField.Title, node.Title);
+
+                    if (options.IncludeNotes && !string.IsNullOrWhiteSpace(node.Notes) && Contains(node.Notes, query))
+                        Add(NodeSearchField.Notes, Snippet(node.Notes!, query));
+
+                    if (options.IncludeTags)
+                    {
+                        foreach (var tag in node.Tags.Where(tag => Contains(tag, query)))
+                            Add(NodeSearchField.Tag, tag);
+                    }
                 }
 
                 if (results.Count >= options.MaxResults)
