@@ -72,13 +72,13 @@ public sealed class DroppedContentService(MindCanvasImportExportService importEx
             cancellationToken.ThrowIfCancellationRequested();
             if (TryWebUri(raw, out var uri))
             {
-                var attachment = target.AddNodeAttachment(
+                var linkAttachment = target.AddNodeAttachment(
                     nodeId,
                     NodeAttachmentKind.Link,
                     string.IsNullOrWhiteSpace(uri.Host) ? raw : uri.Host,
                     raw,
                     true);
-                attachments.Add(attachment.Id);
+                attachments.Add(linkAttachment.Id);
                 continue;
             }
 
@@ -95,8 +95,8 @@ public sealed class DroppedContentService(MindCanvasImportExportService importEx
             }
 
             var kind = ImageExtensions.Contains(extension) ? NodeAttachmentKind.Image : NodeAttachmentKind.File;
-            var attachment = target.AddNodeAttachment(nodeId, kind, Path.GetFileName(fullPath), fullPath, true);
-            attachments.Add(attachment.Id);
+            var fileAttachment = target.AddNodeAttachment(nodeId, kind, Path.GetFileName(fullPath), fullPath, true);
+            attachments.Add(fileAttachment.Id);
         }
 
         return new DroppedContentResult(createdNodes, attachments);
