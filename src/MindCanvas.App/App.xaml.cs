@@ -46,6 +46,7 @@ public partial class App : Application
             MainWindow.InitializeGlobalSearch();
             MainWindow.InitializeExchangeCommands();
             MainWindow.InitializeMultiSelectionBridge();
+            MainWindow.InitializeExternalFileChangeTracking();
             StartupDiagnostics.Write("MainWindow activated.");
         }
         catch (Exception ex)
