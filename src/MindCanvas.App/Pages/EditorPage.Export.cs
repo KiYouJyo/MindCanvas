@@ -11,29 +11,45 @@ public sealed partial class EditorPage
     public async Task ExportPngAsync(StorageFile file)
     {
         ArgumentNullException.ThrowIfNull(file);
-        var (bitmap, pixels) = await RenderCanvasPixelsAsync();
+        var restoreVirtualization = SuspendVirtualizationForFullCanvas();
+        try
+        {
+            var (bitmap, pixels) = await RenderCanvasPixelsAsync();
 
-        using var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
-        stream.Size = 0;
-        var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
-        encoder.SetPixelData(
-            BitmapPixelFormat.Bgra8,
-            BitmapAlphaMode.Premultiplied,
-            (uint)bitmap.PixelWidth,
-            (uint)bitmap.PixelHeight,
-            96,
-            96,
-            pixels);
-        await encoder.FlushAsync();
+            using var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
+            stream.Size = 0;
+            var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
+            encoder.SetPixelData(
+                BitmapPixelFormat.Bgra8,
+                BitmapAlphaMode.Premultiplied,
+                (uint)bitmap.PixelWidth,
+                (uint)bitmap.PixelHeight,
+                96,
+                96,
+                pixels);
+            await encoder.FlushAsync();
+        }
+        finally
+        {
+            ResumeVirtualizationAfterFullCanvas(restoreVirtualization);
+        }
     }
 
     public async Task ExportPdfAsync(StorageFile file)
     {
         ArgumentNullException.ThrowIfNull(file);
-        var (bitmap, bgra) = await RenderCanvasPixelsAsync();
-        var rgb = CompositePremultipliedBgraOnWhite(bgra);
-        var pdf = new RgbPdfExporter().Export(bitmap.PixelWidth, bitmap.PixelHeight, rgb, 96);
-        await FileIO.WriteBytesAsync(file, pdf);
+        var restoreVirtualization = SuspendVirtualizationForFullCanvas();
+        try
+        {
+            var (bitmap, bgra) = await RenderCanvasPixelsAsync();
+            var rgb = CompositePremultipliedBgraOnWhite(bgra);
+            var pdf = new RgbPdfExporter().Export(bitmap.PixelWidth, bitmap.PixelHeight, rgb, 96);
+            await FileIO.WriteBytesAsync(file, pdf);
+        }
+        finally
+        {
+            ResumeVirtualizationAfterFullCanvas(restoreVirtualization);
+        }
     }
 
     private async Task<(RenderTargetBitmap Bitmap, byte[] Pixels)> RenderCanvasPixelsAsync()
