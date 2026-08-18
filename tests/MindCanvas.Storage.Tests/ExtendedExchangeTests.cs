@@ -1,3 +1,5 @@
+using System.IO.Compression;
+using System.Text;
 using MindCanvas.Core.Documents;
 using Xunit;
 
@@ -65,6 +67,57 @@ public sealed class ExtendedExchangeTests
             Assert.Equal("Evidence and references", research.Notes);
             Assert.Equal("https://example.com", research.Hyperlink);
             Assert.Single(research.ChildrenIds);
+        }
+        finally
+        {
+            if (Directory.Exists(root))
+                Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [Fact]
+    public async Task XMind_imports_legacy_content_xml_packages()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "MindCanvas.Tests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        var path = Path.Combine(root, "legacy.xmind");
+        try
+        {
+            await using (var stream = File.Create(path))
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create))
+            {
+                var entry = archive.CreateEntry("content.xml");
+                await using var entryStream = entry.Open();
+                var xml = """
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <xmap-content xmlns="urn:xmind:xmap:xmlns:content:2.0" xmlns:xlink="http://www.w3.org/1999/xlink">
+                      <sheet id="sheet1">
+                        <title>Legacy Sheet</title>
+                        <topic id="root">
+                          <title>Legacy Root</title>
+                          <children><topics type="attached">
+                            <topic id="research" xlink:href="https://example.com/legacy">
+                              <title>Research</title>
+                              <notes><plain>Legacy note</plain></notes>
+                              <children><topics type="attached"><topic id="child"><title>Interview</title></topic></topics></children>
+                            </topic>
+                          </topics></children>
+                        </topic>
+                      </sheet>
+                    </xmap-content>
+                    """;
+                var bytes = Encoding.UTF8.GetBytes(xml);
+                await entryStream.WriteAsync(bytes, TestContext.Current.CancellationToken);
+            }
+
+            var imported = await new XMindMindMapConverter().ImportAsync(path, TestContext.Current.CancellationToken);
+            var research = imported.GetNode(imported.Root.ChildrenIds.Single());
+
+            Assert.Equal("Legacy Root", imported.Root.Title);
+            Assert.Equal("Research", research.Title);
+            Assert.Equal("Legacy note", research.Notes);
+            Assert.Equal("https://example.com/legacy", research.Hyperlink);
+            Assert.Equal("Interview", imported.GetNode(research.ChildrenIds.Single()).Title);
         }
         finally
         {
