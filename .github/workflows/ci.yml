@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: mindcanvas-ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.ref }}
+  group: mindcanvas-ci-${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
@@ -66,8 +66,6 @@ jobs:
           $bundle=Get-ChildItem $out -Recurse -Filter '*.msixbundle'|Select-Object -First 1
           if(-not $bundle){throw 'MSIX bundle was not produced.'}
 
-          # Validate the actual payload, not only source files. This prevents a manifest from
-          # referencing generated assets that were created during build but omitted from MSIX.
           $inspect=Join-Path $env:RUNNER_TEMP 'msix-inspect'
           $bundleZip=Join-Path $env:RUNNER_TEMP 'bundle.zip'
           Copy-Item $bundle.FullName $bundleZip -Force
@@ -110,10 +108,6 @@ jobs:
           & $signtool.FullName sign /fd SHA256 /sha1 $cert.Thumbprint /tr http://timestamp.digicert.com /td SHA256 $env:BUNDLE_PATH
           if($LASTEXITCODE-ne 0){throw "signtool failed: $LASTEXITCODE"}
 
-          # MSIXBundle signing is considered successful only when SignTool returns 0 and the
-          # embedded signer certificate is the exact certificate imported above. PowerShell can
-          # report UnknownError for self-signed package publishers on an untrusted hosted runner,
-          # so trust-chain status is intentionally not used as the acceptance gate.
           $signature=Get-AuthenticodeSignature $env:BUNDLE_PATH
           if(-not $signature.SignerCertificate){throw 'Signed bundle does not expose a signer certificate.'}
           if($signature.SignerCertificate.Thumbprint-ne$cert.Thumbprint){throw 'Signed bundle certificate mismatch.'}
