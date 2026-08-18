@@ -26,6 +26,7 @@ public sealed partial class EditorPage
     private Guid? _nodeDragSourceId;
     private Point _nodeDragStart;
     private bool _nodeDragActive;
+    private bool _nodeDragCompleting;
     private Border? _nodeDragGhost;
     private Border? _nodeDropHighlight;
     private Border? _nodeDragHint;
@@ -61,6 +62,7 @@ public sealed partial class EditorPage
         _nodeDragSourceId = nodeId;
         _nodeDragStart = point.Position;
         _nodeDragActive = false;
+        _nodeDragCompleting = false;
         _nodeDropPlan = null;
         MapCanvas.CapturePointer(e.Pointer);
     }
@@ -73,7 +75,7 @@ public sealed partial class EditorPage
         var point = e.GetCurrentPoint(MapCanvas);
         if (!point.Properties.IsLeftButtonPressed)
         {
-            CancelNodeDrag(refresh: false);
+            CancelNodeDrag(refresh: _nodeDragActive);
             return;
         }
 
@@ -97,13 +99,26 @@ public sealed partial class EditorPage
         if (_nodeDragPointerId != e.Pointer.PointerId)
             return;
 
-        MapCanvas.ReleasePointerCapture(e.Pointer);
-        if (!_nodeDragActive || _document is null || _history is null || _nodeDragSourceId is not Guid sourceId || _nodeDropPlan is not { } plan)
+        if (!_nodeDragActive || _document is null || _history is null || _nodeDragSourceId is not Guid sourceId)
         {
+            _nodeDragCompleting = true;
+            MapCanvas.ReleasePointerCapture(e.Pointer);
             CancelNodeDrag(refresh: false);
+            _nodeDragCompleting = false;
             return;
         }
 
+        if (_nodeDropPlan is not { } plan)
+        {
+            _nodeDragCompleting = true;
+            MapCanvas.ReleasePointerCapture(e.Pointer);
+            CancelNodeDrag(refresh: true);
+            _nodeDragCompleting = false;
+            e.Handled = true;
+            return;
+        }
+
+        _nodeDragCompleting = true;
         try
         {
             var copy = (Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Menu) & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down;
@@ -118,19 +133,26 @@ public sealed partial class EditorPage
             {
                 if (IsNoOpDrop(sourceId, plan))
                 {
-                    CancelNodeDrag(refresh: false);
+                    MapCanvas.ReleasePointerCapture(e.Pointer);
+                    CancelNodeDrag(refresh: true);
                     return;
                 }
                 _history.Execute(new MoveNodeCommand(_document, sourceId, plan.ParentId, plan.Index));
                 _selectedNodeId = sourceId;
             }
 
+            MapCanvas.ReleasePointerCapture(e.Pointer);
             CancelNodeDrag(refresh: false);
             NotifyMutation();
         }
         catch (InvalidOperationException)
         {
+            MapCanvas.ReleasePointerCapture(e.Pointer);
             CancelNodeDrag(refresh: true);
+        }
+        finally
+        {
+            _nodeDragCompleting = false;
         }
 
         e.Handled = true;
@@ -144,7 +166,7 @@ public sealed partial class EditorPage
 
     private void NodeDrag_PointerCaptureLost(object sender, PointerRoutedEventArgs e)
     {
-        if (_nodeDragPointerId == e.Pointer.PointerId && _nodeDragActive)
+        if (!_nodeDragCompleting && _nodeDragPointerId == e.Pointer.PointerId && _nodeDragActive)
             CancelNodeDrag(refresh: true);
     }
 
@@ -230,12 +252,14 @@ public sealed partial class EditorPage
         var node = _document.GetNode(sourceId);
         if (node.ParentId != plan.ParentId)
             return false;
+        if (plan.Zone == NodeDropZone.Child)
+            return true;
         if (plan.Index is null)
             return false;
 
         var siblings = _document.GetNode(plan.ParentId).ChildrenIds;
         var current = siblings.IndexOf(sourceId);
-        return current == plan.Index || current + 1 == plan.Index;
+        return current == plan.Index;
     }
 
     private void CreateNodeDragVisuals(Guid sourceId)
