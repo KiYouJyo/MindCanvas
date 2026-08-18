@@ -29,5 +29,6 @@ public sealed partial class MainWindow
         editor.InitializeMultiSelection();
         editor.InitializeNodeReparentDrag();
         editor.InitializeRichNodeMetadataUi();
+        editor.InitializeViewportVirtualization();
     }
 }
