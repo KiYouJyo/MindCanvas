@@ -43,6 +43,19 @@ public sealed partial class EditorPage
         MapCanvas.AddHandler(UIElement.PointerReleasedEvent, new PointerEventHandler(NodeDrag_PointerReleased), handledEventsToo: true);
         MapCanvas.AddHandler(UIElement.PointerCanceledEvent, new PointerEventHandler(NodeDrag_PointerCanceled), handledEventsToo: true);
         MapCanvas.AddHandler(UIElement.PointerCaptureLostEvent, new PointerEventHandler(NodeDrag_PointerCaptureLost), handledEventsToo: true);
+        PreviewKeyDown += NodeDrag_PreviewKeyDown;
+    }
+
+    private void NodeDrag_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (!_nodeDragActive || e.Key != VirtualKey.Escape)
+            return;
+
+        _nodeDragCompleting = true;
+        MapCanvas.ReleasePointerCaptures();
+        CancelNodeDrag(refresh: true);
+        _nodeDragCompleting = false;
+        e.Handled = true;
     }
 
     private void NodeDrag_PointerPressed(object sender, PointerRoutedEventArgs e)
