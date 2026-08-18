@@ -42,6 +42,7 @@ public partial class App : Application
             MainWindow = new MainWindow();
             StartupDiagnostics.Write("MainWindow constructed.");
             MainWindow.Activate();
+            _ = MainWindow.InitializeFunctionalFoundationAsync();
             StartupDiagnostics.Write("MainWindow activated.");
         }
         catch (Exception ex)
