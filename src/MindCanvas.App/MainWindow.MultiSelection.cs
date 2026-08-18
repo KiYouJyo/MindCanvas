@@ -31,5 +31,6 @@ public sealed partial class MainWindow
         editor.InitializeRichNodeMetadataUi();
         editor.InitializeViewportVirtualization();
         editor.InitializeNodeDecorations();
+        editor.InitializeEnhancedExternalDrop();
     }
 }
