@@ -4,6 +4,11 @@ on:
   push:
     branches: [ main, 'codex/**' ]
   pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: mindcanvas-ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -38,7 +43,7 @@ jobs:
 
   acceptance-package:
     needs: build-test
-    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/codex/') }}
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: windows-2025-vs2026
     timeout-minutes: 30
     steps:
@@ -50,7 +55,6 @@ jobs:
           $packageVersion=$manifest.Package.Identity.Version
           if($packageVersion -notmatch '^(\d+\.\d+\.\d+)\.0$'){throw "Invalid package version: $packageVersion"}
           $displayVersion=$Matches[1]
-          if($displayVersion -ne '0.2.0'){throw "v0.2 acceptance workflow expected 0.2.0 but found $displayVersion"}
           "PACKAGE_VERSION=$packageVersion"|Out-File $env:GITHUB_ENV -Encoding utf8 -Append
           "DISPLAY_VERSION=$displayVersion"|Out-File $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Build and validate unsigned x64 MSIX bundle
@@ -127,7 +131,7 @@ jobs:
           "ACCEPTANCE_SUMS=$(Join-Path $work 'SHA256SUMS-acceptance.txt')"|Out-File $env:GITHUB_ENV -Encoding utf8 -Append
       - uses: actions/upload-artifact@v4
         with:
-          name: MindCanvas-v0.2.0-x64-one-click-acceptance
+          name: MindCanvas-x64-one-click-acceptance
           path: |
             ${{ env.ACCEPTANCE_ZIP }}
             ${{ env.ACCEPTANCE_SUMS }}
