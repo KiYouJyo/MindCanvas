@@ -23,6 +23,25 @@ public sealed record NodeSubtreeTemplate(
     bool IsCollapsed,
     IReadOnlyList<NodeSubtreeTemplate> Children)
 {
+    public NodeSubtreeTemplate(
+        string title,
+        string? notes,
+        string? hyperlink,
+        bool isCollapsed,
+        IReadOnlyList<NodeSubtreeTemplate> children)
+        : this(
+            title,
+            notes,
+            hyperlink,
+            NodePriority.None,
+            Array.Empty<string>(),
+            Array.Empty<string>(),
+            Array.Empty<NodeAttachmentTemplate>(),
+            isCollapsed,
+            children)
+    {
+    }
+
     public static NodeSubtreeTemplate Capture(MindMapDocument document, Guid nodeId)
     {
         ArgumentNullException.ThrowIfNull(document);
